@@ -32,21 +32,32 @@ public class Project_1 {
                     String confirmation = scanner.nextLine();
                     if (confirmation.equalsIgnoreCase("yes")) {
                         System.out.println("Task added successfully!");
+                    } else {
+                        tasks.remove(task);
+                        System.out.println("Task addition cancelled.");
                     }
-
+                    
                     break;
+
                 case "list":
                     // Your code to list all tasks will go here.
-                    System.out.println("CHALLENGE: Implement the 'list' functionality!");
-                    for (int i = 0; i < tasks.size(); i++) {
-                        System.out.println((i + 1) + ". " + tasks.get(i));
-                    }
+    //                System.out.println("CHALLENGE: Implement the 'list' functionality!");
+                    if (!tasks.isEmpty()) {
+                        System.out.println("Your tasks:");
+                        for (int i = 0; i < tasks.size(); i++) {
+                            System.out.println((i + 1) + ". " + tasks.get(i));
+                        }
+                    } else {
+                       System.out.println("You have no tasks yet. Use 'add' to create one!"); 
+                        }
 
                     break;
+
                 case "exit":
                     System.out.println("Exiting application. Goodbye!");
                     scanner.close(); // It's good practice to close the scanner.
                     return; // This exits the main method, ending the program.
+
                 default:
                     System.out.println("Unknown command. Please try again.");
                     break;
