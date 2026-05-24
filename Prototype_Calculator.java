@@ -1,5 +1,4 @@
 import java.util.Scanner;
-
 public class Prototype_Calculator {
     public static void main(String[] sigma) {
         try(Scanner sc = new Scanner(System.in)){
@@ -73,3 +72,4 @@ public class Prototype_Calculator {
         }    
     }
 }
+
