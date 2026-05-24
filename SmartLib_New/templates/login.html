@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SmartLib - Plain Login Test</title>
+</head>
+<body>
+    <h1>SmartLib Login Plain Test</h1>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <p style="color: red;"><strong>Alert: {{ message }}</strong></p> {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form action="/" method="POST">
+        <label>Username: </label>
+        <input type="text" name="username" placeholder="Enter username"><br><br>
+
+        <label>Password: </label>
+        <input type="password" name="password" placeholder="Enter password"><br><br>
+
+        <button type="submit">Log In</button> </form>
+</body>
+</html>

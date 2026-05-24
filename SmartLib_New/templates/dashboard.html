@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SmartLib - Plain Dashboard Test</title>
+</head>
+<body>
+    <h1>SmartLib Home Page</h1> <p>Logged in as: <strong>{{ username }}</strong></p> <hr>
+
+    <h3>Find Book Option</h3> <form action="/dashboard" method="GET">
+        <input type="hidden" name="username" value="{{ username }}">
+
+        <input type="text" name="query" placeholder="Type book name here...">
+        <button type="submit">Search</button>
+    </form>
+
+    {% if error %}
+        <p style="color: red; font-weight: bold;">{{ error }}</p> {% endif %}
+
+    {% if book %}
+        <div style="background-color: #eee; padding: 10px; margin-top: 20px; width: 300px;">
+            <h4>Results for: {{ book.title }}</h4> <p>Location: {{ book.room }}</p>
+            <p>Total Capacity: {{ book.capacity }}</p>
+            <p>Is Available: {{ book.available }}</p> </div>
+    {% endif %}
+</body>
+</html>
