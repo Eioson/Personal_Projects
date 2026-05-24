@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>SmartLib - Sign In</title>
+    <title>SmartLib - Sign Up</title>
     <style>
         body {
             font-family: sans-serif;
@@ -15,15 +15,15 @@
         }
 
         h1 {
-            margin-bottom: 25px; /* Adds space between the title and the white box */
+            margin-bottom: 25px; /* Adds space between the title and the card */
         }
 
         form {
             background: white;
-            padding: 30px; /* Increased padding inside the box for breathing room */
+            padding: 30px; /* Gives the box breathing room */
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            width: 280px; /* Gives the form a consistent, clean width */
+            width: 280px; /* Matches the exact width of the login container */
 
             display: flex;
             flex-direction: column;
@@ -33,20 +33,20 @@
         label {
             font-size: 14px;
             font-weight: bold;
-            margin-bottom: 6px; /* Spacing between label and its input box */
+            margin-bottom: 6px;
             color: #333;
         }
 
-        /* Targets the text and password input boxes */
+        /* Targets all text, email, and password input fields */
         input {
-            padding: 10px; /* Gives you room to type inside the box */
-            margin-bottom: 20px; /* Spacing before the next element starts */
+            padding: 10px;
+            margin-bottom: 20px; /* Keeps the uniform spacing between rows */
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 14px;
         }
 
-        /* Targets the centered login button */
+        /* Targets the solid action button */
         button {
             padding: 10px 20px;
             background-color: #007acc;
@@ -56,46 +56,49 @@
             font-weight: bold;
             font-size: 14px;
             cursor: pointer;
-            margin-top: 5px; /* Small gap above the button */
-            align-self: center; /* Centers just the button inside the flex form */
-            width: 100%; /* Makes the button nice, solid, and easy to click */
+            margin-top: 5px;
+            align-self: center;
+            width: 100%; /* Matches the button stretch of the login screen */
         }
 
         button:hover {
             background-color: #005999;
         }
 
-        /* Targets the sign-up link container at the bottom */
-        .signup-link {
+        /* Targets the redirect link container at the bottom */
+        .login-link {
             display: block;
-            margin-top: 25px; /* Pushes it down exactly 25 pixels from the box */
+            margin-top: 25px; /* Spacing below the form card */
             text-align: center;
         }
     </style>
 </head>
 <body>
-    <h1>SmartLib Sign In</h1>
+    <h1>Register Account</h1>
 
     {% with messages = get_flashed_messages() %}
       {% if messages %}
         {% for message in messages %}
-          <p style="color: red;"><strong>Alert: {{ message }}</strong></p>
+          <p style="color: red; text-align: center;"><strong>Alert: {{ message }}</strong></p>
         {% endfor %}
       {% endif %}
     {% endwith %}
 
-    <form action="/" method="POST">
-        <label>Email Address:</label>
+    <form action="/signup" method="POST">
+        <label>Student Email:</label>
         <input type="email" name="email" placeholder="student@nu.edu.ph" required>
 
-        <label>Password:</label>
+        <label>Create Password:</label>
         <input type="password" name="password" placeholder="Enter password" required>
 
-        <button type="submit">Log In</button>
+        <label>Confirm Password:</label>
+        <input type="password" name="confirm_password" placeholder="Repeat password" required>
+
+        <button type="submit">Sign Up and Confirm</button>
     </form>
 
-    <div class="signup-link">
-        <a href="/signup">New student? Create an account here</a>
+    <div class="login-link">
+        <a href="/">Already have an account? Go back to Sign In</a>
     </div>
 </body>
 </html>
