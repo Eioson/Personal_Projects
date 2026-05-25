@@ -1,26 +1,497 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>SmartLib - Plain Dashboard Test</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartLib Homepage</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            display: grid;
+            grid-template-rows: auto 1fr;
+            grid-template-columns: 280px 1fr;
+            height: 100vh;
+        }
+
+        .header {
+            grid-column: 1 / -1;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+            background-color: #162c99;
+            color: white;
+            position: relative;
+            z-index: 10;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        .sidebar {
+            grid-column: 1;
+            padding: 20px;
+            background-color: #001b57;
+            color: white;
+            overflow-y: auto;
+        }
+
+        .sidebar h2 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 5px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .search-box input {
+            padding: 6px;
+            font-size: 0.9rem;
+            width: 100%;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        .search-box button {
+            padding: 6px 12px;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 4px;
+            border: none;
+            background-color: #162c99;
+            color: white;
+        }
+
+        .search-box button:hover {
+            background-color: #0b1c70;
+        }
+
+        .error-message {
+            color: #ff4d4d;
+            font-weight: bold;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        .main-content {
+            grid-column: 2;
+            padding: 20px;
+            background-color: #e7ebff;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+        }
+
+        .results-box {
+            border: 2px solid #000;
+            border-radius: 4px;
+            padding: 25px;
+            min-height: auto;
+            background-color: #ffffff;
+        }
+
+        .results-box h2 {
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            color: #001b57;
+        }
+
+        .results-box p {
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            background: #e0f2fe;
+            color: #0369a1;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-left: 10px;
+        }
+
+        .action-row {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn-action {
+            padding: 10px 20px;
+            background-color: #162c99;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .btn-action:hover {
+            background-color: #001b57;
+        }
+
+        .sidebar-link {
+            display: block;
+            margin-top: 30px;
+            color: #9cb2ff;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .sidebar-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Form styling for internal widgets */
+        .widget-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .widget-form label {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #cbd5e1;
+        }
+
+        .widget-form input, .widget-form select {
+            padding: 8px;
+            font-size: 0.85rem;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            width: 100%;
+        }
+
+        .widget-form button {
+            padding: 8px;
+            font-weight: bold;
+            background-color: #162c99;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .widget-form button:hover {
+            background-color: #001b57;
+        }
+
+        .status-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            margin-top: 15px;
+        }
+
+        .status-table th, .status-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .status-table th {
+            background-color: #f1f1f1;
+            color: #333;
+        }
+
+        /* Modal Overlay for Guests */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-box {
+            background: white;
+            padding: 30px;
+            border-radius: 6px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            width: 340px;
+        }
+
+        .modal-box h4 {
+            margin-top: 0;
+            font-size: 1.2rem;
+            color: #001b57;
+            margin-bottom: 12px;
+        }
+
+        .modal-box p {
+            font-size: 0.95rem;
+            color: #444;
+            margin-bottom: 25px;
+            line-height: 1.4;
+        }
+
+        .modal-btn {
+            background-color: #162c99;
+            color: white;
+            border: none;
+            padding: 11px 20px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .modal-btn:hover {
+            background-color: #001b57;
+        }
+    </style>
 </head>
 <body>
-    <h1>SmartLib Home Page</h1> <p>Logged in as: <strong>{{ username }}</strong></p> <hr>
 
-    <h3>Find Book Option</h3> <form action="/dashboard" method="GET">
-        <input type="hidden" name="username" value="{{ username }}">
+    <header class="header">
+        <h1>SmartLib Home Page</h1>
+        <p>Logged in as: <strong>{{ username }}</strong> <span class="role-badge">{{ role }}</span></p>
+    </header>
 
-        <input type="text" name="query" placeholder="Type book name here...">
-        <button type="submit">Search</button>
-    </form>
+    <aside class="sidebar">
+        <h2>Find Book Option</h2>
+        <form method="GET" action="/dashboard" class="search-box">
+            <input type="hidden" name="username" value="{{ username }}">
+            <input type="hidden" name="role" value="{{ role }}">
+            <input type="text" name="query" placeholder="Type book name here..." required>
+            <button type="submit">Search</button>
+        </form>
 
-    {% if error %}
-        <p style="color: red; font-weight: bold;">{{ error }}</p> {% endif %}
+        {% if error %}
+            <p class="error-message">{{ error }}</p>
+        {% endif %}
 
-    {% if book %}
-        <div style="background-color: #eee; padding: 10px; margin-top: 20px; width: 300px;">
-            <h4>Results for: {{ book.title }}</h4> <p>Location: {{ book.room }}</p>
-            <p>Total Capacity: {{ book.capacity }}</p>
-            <p>Is Available: {{ book.available }}</p> </div>
-    {% endif %}
+        <!-- SIDEBAR ROLE JINJA SWITCH -->
+        {% if role == 'librarian' %}
+            <h2>Librarian Actions</h2>
+            <form action="/add_book" method="POST" class="widget-form">
+                <input type="hidden" name="username" value="{{ username }}">
+                <input type="hidden" name="role" value="{{ role }}">
+
+                <label>Add Book Title:</label>
+                <input type="text" name="title" placeholder="e.g., Python Basics" required>
+
+                <label>Assigned Room:</label>
+                <input type="text" name="room" placeholder="e.g., Room 3" required>
+
+                <label>Room Capacity Limit:</label>
+                <input type="number" name="capacity" value="25" required>
+
+                <label>Material Status:</label>
+                <select name="available">
+                    <option value="true">Available</option>
+                    <option value="false">Unavailable</option>
+                </select>
+
+                <button type="submit">Add Book</button>
+            </form>
+        {% elif role == 'teacher' %}
+            <h2>Reserve a Space</h2>
+            <form action="/reserve_space" method="POST" class="widget-form">
+                <input type="hidden" name="username" value="{{ username }}">
+                <input type="hidden" name="role" value="{{ role }}">
+
+                <label>Select Workspace:</label>
+                <select name="room_name" required>
+                    <option value="" disabled selected>Select Room</option>
+                    <option value="Collab Room A">Collab Room A</option>
+                    <option value="Faculty Room 2">Faculty Room 2</option>
+                </select>
+
+                <label>Time Slot:</label>
+                <input type="text" name="time_slot" placeholder="e.g., Wed 2:00 PM" required>
+
+                <button type="submit">Book Slot</button>
+            </form>
+        {% endif %}
+
+        <a href="/" class="sidebar-link">← Return to Sign In</a>
+    </aside>
+
+    <main class="main-content">
+        <!-- Display status updates directly in workspace view -->
+        {% with messages = get_flashed_messages(category_filter=["success", "error"]) %}
+          {% if messages %}
+            {% for message in messages %}
+              <div style="background-color: #ffd2d2; border: 1px solid #f5c2c2; color: #721c24; padding: 12px; border-radius: 4px; font-size: 0.9rem; margin-bottom: 10px;">
+                  {% if 'denied' in message or 'restricted' in message %}
+                      <strong>Access Error:</strong> {{ message }}
+                  {% else %}
+                      <strong>Status Notice:</strong> {{ message }}
+                  {% endif %}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <div class="results-box" style="min-height: auto; padding: 15px 25px;">
+            {% if role == 'librarian' %}
+                <h2>System Administrator Dashboard Workspace</h2>
+                <p>Hello administrative operator, your global monitoring controls are loaded below.</p>
+            {% elif role == 'teacher' %}
+                <h2>Faculty Resource Dashboard Workspace</h2>
+                <p>Hello professor, your verified educational slot utilities are loaded below.</p>
+            {% else %}
+                <h2>Student Discovery Console</h2>
+                <p>Browse active reference materials and verify room availability below.</p>
+            {% endif %}
+        </div>
+
+        {% if book %}
+            <div class="results-box">
+                <h2>Results for: {{ book.title }}</h2>
+                <p><strong>Location:</strong> {{ book.room }}</p>
+                <p><strong>Total Capacity:</strong> {{ book.capacity }} items</p>
+                <p><strong>Is Available:</strong>
+                    {% if book.available %}
+                        <span style="color: green; font-weight: bold;">Available</span>
+                    {% else %}
+                        <span style="color: red; font-weight: bold;">Checked Out</span>
+                    {% endif %}
+                </p>
+
+                <div class="action-row">
+                    {% if role == 'guest' %}
+                        <button type="button" class="btn-action" onclick="openGateModal('borrow')">Borrow Material</button>
+                        <button type="button" class="btn-action" style="background-color: #555;" onclick="openGateModal('reserve')">Reserve Space</button>
+                    {% else %}
+                        <button type="button" class="btn-action" onclick="alert('Transaction processed successfully!')">Borrow Material</button>
+                        <button type="button" class="btn-action" style="background-color: #555;" onclick="alert('Room slot requested!')">Reserve Space</button>
+                    {% endif %}
+                </div>
+            </div>
+        {% else %}
+            <div class="results-box">
+                <p style="color: #666; font-style: italic;">Search for a book to view details here.</p>
+            </div>
+        {% endif %}
+
+        <!-- CONTENT AREA ROLE JINJA SWITCH -->
+        {% if role == 'librarian' %}
+            <div class="results-box">
+                <h2>Global Inventory Management Directory</h2>
+                <table class="status-table">
+                    <thead>
+                        <tr>
+                            <th>Book Title</th>
+                            <th>Room Location</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if books %}
+                            {% for b_title, b_info in books.items() %}
+                            <tr>
+                                <td>{{ b_title.title() }}</td>
+                                <td>{{ b_info.room if b_info is mapping else 'N/A' }}</td>
+                                <td>
+                                    {% if b_info is mapping and b_info.available %}
+                                        <span style="color: green; font-weight: bold;">Available</span>
+                                    {% else %}
+                                        <span style="color: red; font-weight: bold;">Loaned</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <form action="/toggle_book" method="POST" style="margin: 0; display: inline;">
+                                        <input type="hidden" name="username" value="{{ username }}">
+                                        <input type="hidden" name="role" value="{{ role }}">
+                                        <input type="hidden" name="title" value="{{ b_title }}">
+                                        <button type="submit" style="padding: 4px 8px; font-size: 11px; cursor: pointer;">Toggle Status</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4">No catalog inventory records stored.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        {% elif role == 'teacher' %}
+            <div class="results-box">
+                <h2>Suggest Physical Material Addition</h2>
+                <form action="/suggest_book" method="POST" style="display: flex; gap: 10px; margin-top: 15px;">
+                    <input type="hidden" name="username" value="{{ username }}">
+                    <input type="hidden" name="role" value="{{ role }}">
+                    <input type="text" name="book_title" placeholder="e.g., Practical Cryptography" required style="padding: 8px; flex: 1; border-radius: 4px; border: 1px solid #ccc;">
+                    <button type="submit" style="padding: 8px 15px; font-weight: bold; background-color: #162c99; color: white; border: none; border-radius: 4px; cursor: pointer;">Submit Proposal</button>
+                </form>
+            </div>
+        {% elif role == 'student' %}
+            <div class="results-box">
+                <h2>Study Space Vacancy Tracker</h2>
+                <p>Room 1 (R1) Capacity: <strong>15 slots left</strong></p>
+                <p>Room 2 (R2) Capacity: <strong>30 slots left</strong></p>
+            </div>
+        {% endif %}
+    </main>
+
+    <!-- Modal Overlay for Guests (Uses fixed position to prevent shifting CSS Grid tracks) -->
+    <div class="modal-overlay" id="gateModal">
+        <div class="modal-box">
+            <h4>Access Restricted</h4>
+            <p id="gateMessage">You must register an institutional profile to perform this action.</p>
+            <button class="modal-btn" onclick="goToRegistration()">Sign Up Now</button>
+        </div>
+    </div>
+
+    <script>
+        function openGateModal(actionType) {
+            const modal = document.getElementById('gateModal');
+            const message = document.getElementById('gateMessage');
+
+            if (actionType === 'borrow') {
+                message.innerText = "Borrowing items requires an active profile. Please register an account to borrow materials.";
+            } else if (actionType === 'reserve') {
+                message.innerText = "Study space allocations are locked to verified accounts. Please sign up to reserve spaces.";
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        function goToRegistration() {
+            window.location.href = "{{ url_for('signup') }}";
+        }
+
+        // Close modal overlay window on background click
+        window.onclick = function(event) {
+            const modal = document.getElementById('gateModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
 </body>
 </html>

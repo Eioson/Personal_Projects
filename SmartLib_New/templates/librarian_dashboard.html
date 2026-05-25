@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SmartLib - Admin Hub</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px 0;
+            margin: 0;
+            background-color: #f8f9fa;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 6px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            width: 480px;
+            border: 1px solid #eef0f2;
+        }
+        h1, h3 {
+            text-align: center;
+        }
+        .centered-sub {
+            text-align: center;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        input, select, button {
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 4px;
+            font-size: 13px;
+            box-sizing: border-box;
+        }
+        input, select {
+            border: 1px solid #ccc;
+            width: 100%;
+        }
+        button {
+            background-color: #007acc;
+            color: white;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #005999;
+        }
+        .badge {
+            padding: 2px 6px;
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .logout-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .logout {
+            color: #777;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .logout:hover {
+            color: #ff3333;
+        }
+        .flash-msg {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+        .list-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+        .list-table th, .list-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .list-table th {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Librarian Control Center</h1>
+        <p class="centered-sub">User: <strong>{{ username }}</strong> <span class="badge">Librarian</span></p>
+
+        {% with messages = get_flashed_messages(category_filter=["success"]) %}
+          {% if messages %}
+            {% for message in messages %}
+              <div class="flash-msg"><strong>Success:</strong> {{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <hr style="border: 0; border-top: 1px solid #eee;">
+
+        <h3>Add/Update Catalog Material</h3>
+        <form action="/add_book" method="POST">
+            <input type="hidden" name="username" value="{{ username }}">
+
+            <label style="font-size: 12px; font-weight: bold;">Book Title:</label>
+            <input type="text" name="title" placeholder="e.g., Computer Architecture" required>
+
+            <label style="font-size: 12px; font-weight: bold;">Storage Unit / Room:</label>
+            <input type="text" name="room" placeholder="e.g., Room 3" required>
+
+            <label style="font-size: 12px; font-weight: bold;">Room Limit/Capacity:</label>
+            <input type="number" name="capacity" value="30" required>
+
+            <label style="font-size: 12px; font-weight: bold;">Catalog Status:</label>
+            <select name="available">
+                <option value="true">Available</option>
+                <option value="false">Unavailable / Loaned</option>
+            </select>
+
+            <button type="submit">Commit Material to DB</button>
+        </form>
+
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
+
+        <h3>Active Catalog Directory</h3>
+        <table class="list-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Location</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if books %}
+                    {% for b_title, b_info in books.items() %}
+                    <tr>
+                        <td>{{ b_title.title() }}</td>
+                        <!-- Safe fallback checks for book dictionaries -->
+                        <td>{{ b_info.room if b_info is mapping else 'General Area' }}</td>
+                        <td>
+                            {% if b_info is mapping and b_info.available %}
+                                <span style="color: green; font-weight: bold;">Available</span>
+                            {% else %}
+                                <span style="color: red; font-weight: bold;">Borrowed</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form action="/toggle_book" method="POST" style="margin: 0; display: inline;">
+                                <input type="hidden" name="username" value="{{ username }}">
+                                <input type="hidden" name="title" value="{{ b_title }}">
+                                <button type="submit" style="padding: 4px 8px; font-size: 11px; width: auto; margin: 0; background-color: #555;">Toggle</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: #777;">No active books in catalog directory.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
+
+        <h3>System User Directory</h3>
+        <table class="list-table">
+            <thead>
+                <tr>
+                    <th>Email Account</th>
+                    <th>Designated Role</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if users %}
+                    {% for u_email, u_data in users.items() %}
+                    <tr>
+                        <td>{{ u_email }}</td>
+                        <td>
+                            <!-- Checks if data is a map to bypass legacy string attributes crash -->
+                            <strong>
+                                {% if u_data is mapping %}
+                                    {{ u_data.get('role', 'student') | upper }}
+                                {% else %}
+                                    STUDENT
+                                {% endif %}
+                            </strong>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="2" style="text-align: center; color: #777;">No active users in database.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+
+        <div class="logout-container">
+            <a class="logout" href="/">Sign Out</a>
+        </div>
+    </div>
+</body>
+</html>

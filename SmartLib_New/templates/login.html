@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>SmartLib - Sign In</title>
+    <title>SmartLib - Log In</title>
     <style>
         body {
             font-family: sans-serif;
@@ -11,44 +11,39 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            background-color: #f5f5f5;
-        }
-
-        h1 {
-            margin-bottom: 25px; /* Adds space between the title and the white box */
-        }
-
-        form {
-            background: white;
-            padding: 30px; /* Increased padding inside the box for breathing room */
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            width: 280px; /* Gives the form a consistent, clean width */
-
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Targets the text labels */
-        label {
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 6px; /* Spacing between label and its input box */
+            background-color: #f8f9fa;
             color: #333;
         }
-
-        /* Targets the text and password input boxes */
+        h1 {
+            font-weight: 300;
+            margin-bottom: 20px;
+        }
+        form {
+            background: white;
+            padding: 30px;
+            border-radius: 6px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #eef0f2;
+        }
+        label {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #555;
+        }
         input {
-            padding: 10px; /* Gives you room to type inside the box */
-            margin-bottom: 20px; /* Spacing before the next element starts */
+            padding: 10px;
+            margin-bottom: 20px;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 14px;
+            outline-color: #007acc;
         }
-
-        /* Targets the centered login button */
         button {
-            padding: 10px 20px;
+            padding: 11px;
             background-color: #007acc;
             color: white;
             border: none;
@@ -56,30 +51,42 @@
             font-weight: bold;
             font-size: 14px;
             cursor: pointer;
-            margin-top: 5px; /* Small gap above the button */
-            align-self: center; /* Centers just the button inside the flex form */
-            width: 100%; /* Makes the button nice, solid, and easy to click */
+            width: 100%;
         }
-
         button:hover {
             background-color: #005999;
         }
-
-        /* Targets the sign-up link container at the bottom */
         .signup-link {
-            display: block;
-            margin-top: 25px; /* Pushes it down exactly 25 pixels from the box */
+            margin-top: 25px;
             text-align: center;
+            font-size: 14px;
+        }
+        a {
+            color: #007acc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .alert-box {
+            background-color: #ffeef0;
+            border-left: 4px solid #f85149;
+            color: #a01c24;
+            padding: 10px;
+            width: 310px;
+            font-size: 13px;
+            margin-bottom: 15px;
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
     <h1>SmartLib Sign In</h1>
 
-    {% with messages = get_flashed_messages() %}
+    {% with messages = get_flashed_messages(category_filter=["error"]) %}
       {% if messages %}
         {% for message in messages %}
-          <p style="color: red;"><strong>Alert: {{ message }}</strong></p>
+          <div class="alert-box"><strong>Alert:</strong> {{ message }}</div>
         {% endfor %}
       {% endif %}
     {% endwith %}
@@ -95,7 +102,7 @@
     </form>
 
     <div class="signup-link">
-        <a href="/signup">New student? Create an account here</a>
+        <a href="/signup">New to SmartLib? Create an account here</a>
     </div>
 </body>
 </html>

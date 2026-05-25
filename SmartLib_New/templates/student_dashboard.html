@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SmartLib - Student Hub</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px 0;
+            margin: 0;
+            background-color: #f8f9fa;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 6px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            width: 420px;
+            text-align: center;
+            border: 1px solid #eef0f2;
+        }
+        input, button {
+            padding: 11px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        input {
+            border: 1px solid #ccc;
+            width: 88%;
+        }
+        button {
+            background-color: #007acc;
+            color: white;
+            border: none;
+            cursor: pointer;
+            width: 94%;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #005999;
+        }
+        .badge {
+            padding: 2px 6px;
+            background: #e1f5fe;
+            color: #0288d1;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .logout {
+            margin-top: 25px;
+            display: inline-block;
+            color: #777;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .logout:hover {
+            color: #ff3333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Student Workspace</h1>
+        <p>User: <strong>{{ username }}</strong> <span class="badge">Student</span></p>
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+        <h3>Search Library Inventory</h3>
+        <form action="/dashboard" method="GET">
+            <input type="hidden" name="username" value="{{ username }}">
+            <input type="hidden" name="role" value="student">
+            <input type="text" name="query" placeholder="e.g., lajan littera" required>
+            <button type="submit">Verify Material Status</button>
+        </form>
+
+        {% if book %}
+            <div style="background: #e6f7ff; padding: 15px; margin-top: 15px; border-radius: 4px; text-align: left; font-size: 14px; border: 1px solid #bae7ff;">
+                <p style="margin: 4px 0;"><strong>Title:</strong> {{ book.title }}</p>
+                <p style="margin: 4px 0;"><strong>Location:</strong> {{ book.room }} (Capacity: {{ book.capacity }})</p>
+                <p style="margin: 4px 0;"><strong>Status:</strong>
+                    {% if book.available %}
+                        <span style="color: green; font-weight: bold;">Available for Borrowing</span>
+                    {% else %}
+                        <span style="color: red; font-weight: bold;">Checked Out</span>
+                    {% endif %}
+                </p>
+            </div>
+        {% elif error %}
+            <p style="color: #d32f2f; background: #ffebee; border: 1px solid #ffcdd2; padding: 10px; border-radius: 4px; margin-top: 15px; font-size: 13px;">
+                {{ error }}
+            </p>
+        {% endif %}
+
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 25px 0;">
+        <h3>Study Space Vacancy</h3>
+        <p style="font-size: 14px; color: #555;">Room 1 (R1) Capacity: <strong>15 slots left</strong></p>
+
+        <a class="logout" href="/">Sign Out</a>
+    </div>
+</body>
+</html>

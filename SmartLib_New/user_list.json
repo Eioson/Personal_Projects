@@ -1,0 +1,46 @@
+{
+    "velascos@nu.edu.ph": {
+        "password": "password123",
+        "role": "student"
+    },
+    "patesel@student.nu-cebu.edu.ph": {
+        "password": "password1234",
+        "role": "student"
+    },
+    "teacher@nu.edu.ph": {
+        "password": "password123",
+        "role": "teacher"
+    },
+    "admin@nu.edu.ph": {
+        "password": "password123",
+        "role": "librarian"
+    },
+    "lajan littera": {
+        "room": "Room 1",
+        "capacity": 15,
+        "available": true,
+        "role": "student"
+    },
+    "data structures": {
+        "room": "Room 2",
+        "capacity": 30,
+        "available": false,
+        "role": "student"
+    },
+    "patesel@students.nu-cebu.edu.ph": {
+        "password": "j9smL):U^4Q!\"Cm",
+        "role": "student"
+    },
+    "eiosonp@gmail.com": {
+        "password": "j9smL):U^4Q!\"Cm",
+        "role": "librarian"
+    },
+    "eiosonp@gmal.com": {
+        "password": "j9smL):U^4Q!\"Cm",
+        "role": "teacher"
+    },
+    "eiosonp@yahoo.com": {
+        "password": "j9smL):U^4Q!\"Cm",
+        "role": "student"
+    }
+}

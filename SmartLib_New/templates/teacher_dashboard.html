@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SmartLib - Faculty Hub</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px 0;
+            margin: 0;
+            background-color: #f8f9fa;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 6px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            width: 440px;
+            border: 1px solid #eef0f2;
+        }
+        h1, h3 {
+            text-align: center;
+        }
+        .centered-sub {
+            text-align: center;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        input, select, button {
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        input, select {
+            border: 1px solid #ccc;
+            width: 100%;
+        }
+        button {
+            background-color: #007acc;
+            color: white;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #005999;
+        }
+        .badge {
+            padding: 2px 6px;
+            background: #ede7f6;
+            color: #5e35b1;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .logout-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .logout {
+            color: #777;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .logout:hover {
+            color: #ff3333;
+        }
+        .flash-msg {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Teacher Workspace</h1>
+        <p class="centered-sub">User: <strong>{{ username }}</strong> <span class="badge">Faculty</span></p>
+
+        {% with messages = get_flashed_messages(category_filter=["success"]) %}
+          {% if messages %}
+            {% for message in messages %}
+              <div class="flash-msg"><strong>System Status:</strong> {{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <hr style="border: 0; border-top: 1px solid #eee;">
+
+        <h3>Search Catalog</h3>
+        <form action="/dashboard" method="GET">
+            <input type="hidden" name="username" value="{{ username }}">
+            <input type="hidden" name="role" value="teacher">
+            <input type="text" name="query" placeholder="Search book title..." required>
+            <button type="submit">Verify Room Location</button>
+        </form>
+
+        {% if book %}
+            <div style="background: #e8f5e9; padding: 12px; margin: 15px 0; border-radius: 4px; font-size: 14px; border: 1px solid #c8e6c9;">
+                <p style="margin: 4px 0;"><strong>Book Title:</strong> {{ book.title }}</p>
+                <p style="margin: 4px 0;"><strong>Assigned Location:</strong> {{ book.room }}</p>
+                <p style="margin: 4px 0;"><strong>Availability:</strong> {% if book.available %}<span style="color: green;">In Library</span>{% else %}<span style="color: red;">Checked Out</span>{% endif %}</p>
+            </div>
+        {% elif error %}
+            <p style="color: #d32f2f; background: #ffebee; border: 1px solid #ffcdd2; padding: 10px; border-radius: 4px; font-size: 13px;">{{ error }}</p>
+        {% endif %}
+
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 25px 0;">
+
+        <h3>Suggest Material Addition</h3>
+        <form action="/suggest_book" method="POST">
+            <input type="hidden" name="username" value="{{ username }}">
+            <input type="text" name="book_title" placeholder="e.g., Advanced Calculus Vol II" required>
+            <button type="submit">Submit Proposal</button>
+        </form>
+
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 25px 0;">
+
+        <h3>Reserve Space</h3>
+        <form action="/reserve_space" method="POST">
+            <input type="hidden" name="username" value="{{ username }}">
+            <select name="room_name" required>
+                <option value="" disabled selected>Select Room</option>
+                <option value="Collab Room A">Collab Room A</option>
+                <option value="Faculty Hub 1">Faculty Hub 1</option>
+            </select>
+            <input type="text" name="time_slot" placeholder="e.g., Mon 10:00 AM - 12:00 PM" required>
+            <button type="submit">Book Reservation</button>
+        </form>
+
+        <div class="logout-container">
+            <a class="logout" href="/">Sign Out</a>
+        </div>
+    </div>
+</body>
+</html>
