@@ -1,218 +1,207 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmartLib - Admin Hub</title>
     <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: sans-serif;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            display: grid;
+            grid-template-rows: auto 1fr;
+            grid-template-columns: 280px 1fr;
+            height: 100vh;
+        }
+        .header {
+            grid-column: 1 / -1;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+            background-color: #162c99;
+            color: white;
+            position: relative;
+            z-index: 10;
+        }
+        .header h1 { font-size: 2rem; margin-bottom: 5px; }
+        .sidebar {
+            grid-column: 1;
+            padding: 20px;
+            background-color: #001b57;
+            color: white;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            padding: 50px 0;
-            margin: 0;
-            background-color: #f8f9fa;
+            overflow-y: auto;
         }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 6px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            width: 480px;
-            border: 1px solid #eef0f2;
+        .sidebar h2 { font-size: 1.2rem; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; }
+        .search-box { display: flex; gap: 5px; margin-bottom: 15px; }
+        .search-box input { padding: 6px; font-size: 0.9rem; width: 100%; border-radius: 4px; border: 1px solid #ccc; }
+        .search-box button { padding: 6px 12px; cursor: pointer; font-weight: bold; border-radius: 4px; border: none; background-color: #162c99; color: white; }
+        .error-message { color: #ff4d4d; font-weight: bold; margin-top: 10px; font-size: 0.9rem; }
+        .main-content {
+            grid-column: 2;
+            padding: 20px;
+            background-color: #e7ebff;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
         }
-        h1, h3 {
-            text-align: center;
-        }
-        .centered-sub {
-            text-align: center;
-            font-size: 14px;
-            margin-bottom: 20px;
-        }
-        input, select, button {
-            padding: 10px;
-            margin: 8px 0;
-            border-radius: 4px;
-            font-size: 13px;
-            box-sizing: border-box;
-        }
-        input, select {
-            border: 1px solid #ccc;
-            width: 100%;
-        }
-        button {
-            background-color: #007acc;
-            color: white;
-            border: none;
-            cursor: pointer;
-            width: 100%;
-            font-weight: bold;
-        }
-        button:hover {
-            background-color: #005999;
-        }
-        .badge {
-            padding: 2px 6px;
-            background: #e8f5e9;
-            color: #2e7d32;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: bold;
-        }
-        .logout-container {
-            text-align: center;
-            margin-top: 30px;
-        }
-        .logout {
-            color: #777;
-            text-decoration: none;
-            font-size: 14px;
-        }
-        .logout:hover {
-            color: #ff3333;
-        }
-        .flash-msg {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-            border: 1px solid #c8e6c9;
-            padding: 10px;
-            border-radius: 4px;
-            font-size: 13px;
-            margin-bottom: 20px;
-        }
-        .list-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-            margin-top: 10px;
-        }
-        .list-table th, .list-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        .list-table th {
-            background-color: #f1f1f1;
-        }
+        .results-box { border: 2px solid #000; border-radius: 4px; padding: 25px; min-height: auto; background-color: #ffffff; }
+        .results-box h2 { margin-bottom: 15px; font-size: 1.4rem; color: #001b57; }
+        .results-box p { margin-bottom: 10px; font-size: 1.1rem; }
+        .role-badge { display: inline-block; padding: 3px 8px; background: #e8f5e9; color: #2e7d32; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; margin-left: 10px; }
+        .btn-sidebar-login { display: block; width: 100%; padding: 10px; margin-top: auto; background-color: #555; color: white; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; font-family: Verdana, Geneva, Tahoma, sans-serif; font-weight: bold; font-size: 0.9rem; text-align: center; text-decoration: none; }
+        .widget-form { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; margin-bottom: 25px; background: rgba(255, 255, 255, 0.05); padding: 12px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .widget-form label { font-size: 0.75rem; font-weight: bold; color: #cbd5e1; }
+        .widget-form input, .widget-form select { padding: 6px; font-size: 0.8rem; border-radius: 4px; border: 1px solid #ccc; }
+        .widget-form button { padding: 8px; font-weight: bold; background-color: #162c99; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .status-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 15px; }
+        .status-table th, .status-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .status-table th { background-color: #f1f1f1; color: #333; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Librarian Control Center</h1>
-        <p class="centered-sub">User: <strong>{{ username }}</strong> <span class="badge">Librarian</span></p>
+    <header class="header">
+        <h1>SmartLib Home Page</h1>
+        <p>Logged in as: <strong>{{ username }}</strong> <span class="role-badge">Librarian</span></p>
+    </header>
+    <aside class="sidebar">
+        <h2>Find Book Option</h2>
+        <form method="GET" action="/dashboard" class="search-box">
+            <input type="hidden" name="username" value="{{ username }}">
+            <input type="hidden" name="role" value="{{ role }}">
+            <input type="text" name="query" placeholder="Type book name here..." required>
+            <button type="submit">Search</button>
+        </form>
+        {% if error %}<p class="error-message">{{ error }}</p>{% endif %}
 
-        {% with messages = get_flashed_messages(category_filter=["success"]) %}
+        <h2>Add Catalog Book</h2>
+        <form action="/add_book" method="POST" class="widget-form">
+            <input type="hidden" name="username" value="{{ username }}">
+            <input type="hidden" name="role" value="{{ role }}">
+            <label>Add Book Title:</label>
+            <input type="text" name="title" placeholder="e.g., Python Basics" required>
+            <label>Assigned Room:</label>
+            <input type="text" name="room" placeholder="e.g., Room 3" required>
+            <label>Room Capacity Limit:</label>
+            <input type="number" name="capacity" value="25" required>
+            <label>Material Status:</label>
+            <select name="available">
+                <option value="true">Available</option>
+                <option value="false">Unavailable</option>
+            </select>
+            <button type="submit">Add Book</button>
+        </form>
+
+        <a href="/dashboard" class="btn-sidebar-login">Sign Out</a>
+    </aside>
+    <main class="main-content">
+        {% with messages = get_flashed_messages(category_filter=["success", "error"]) %}
           {% if messages %}
             {% for message in messages %}
-              <div class="flash-msg"><strong>Success:</strong> {{ message }}</div>
+              <div style="background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 12px; border-radius: 4px; font-size: 0.9rem;">
+                  <strong>Status Notice:</strong> {{ message }}
+              </div>
             {% endfor %}
           {% endif %}
         {% endwith %}
 
-        <hr style="border: 0; border-top: 1px solid #eee;">
-
-        <h3>Add/Update Catalog Material</h3>
-        <form action="/add_book" method="POST">
-            <input type="hidden" name="username" value="{{ username }}">
-
-            <label style="font-size: 12px; font-weight: bold;">Book Title:</label>
-            <input type="text" name="title" placeholder="e.g., Computer Architecture" required>
-
-            <label style="font-size: 12px; font-weight: bold;">Storage Unit / Room:</label>
-            <input type="text" name="room" placeholder="e.g., Room 3" required>
-
-            <label style="font-size: 12px; font-weight: bold;">Room Limit/Capacity:</label>
-            <input type="number" name="capacity" value="30" required>
-
-            <label style="font-size: 12px; font-weight: bold;">Catalog Status:</label>
-            <select name="available">
-                <option value="true">Available</option>
-                <option value="false">Unavailable / Loaned</option>
-            </select>
-
-            <button type="submit">Commit Material to DB</button>
-        </form>
-
-        <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
-
-        <h3>Active Catalog Directory</h3>
-        <table class="list-table">
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Location</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% if books %}
-                    {% for b_title, b_info in books.items() %}
-                    <tr>
-                        <td>{{ b_title.title() }}</td>
-                        <!-- Safe fallback checks for book dictionaries -->
-                        <td>{{ b_info.room if b_info is mapping else 'General Area' }}</td>
-                        <td>
-                            {% if b_info is mapping and b_info.available %}
-                                <span style="color: green; font-weight: bold;">Available</span>
-                            {% else %}
-                                <span style="color: red; font-weight: bold;">Borrowed</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <form action="/toggle_book" method="POST" style="margin: 0; display: inline;">
-                                <input type="hidden" name="username" value="{{ username }}">
-                                <input type="hidden" name="title" value="{{ b_title }}">
-                                <button type="submit" style="padding: 4px 8px; font-size: 11px; width: auto; margin: 0; background-color: #555;">Toggle</button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                {% else %}
-                    <tr>
-                        <td colspan="4" style="text-align: center; color: #777;">No active books in catalog directory.</td>
-                    </tr>
-                {% endif %}
-            </tbody>
-        </table>
-
-        <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
-
-        <h3>System User Directory</h3>
-        <table class="list-table">
-            <thead>
-                <tr>
-                    <th>Email Account</th>
-                    <th>Designated Role</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% if users %}
-                    {% for u_email, u_data in users.items() %}
-                    <tr>
-                        <td>{{ u_email }}</td>
-                        <td>
-                            <!-- Checks if data is a map to bypass legacy string attributes crash -->
-                            <strong>
-                                {% if u_data is mapping %}
-                                    {{ u_data.get('role', 'student') | upper }}
-                                {% else %}
-                                    STUDENT
-                                {% endif %}
-                            </strong>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                {% else %}
-                    <tr>
-                        <td colspan="2" style="text-align: center; color: #777;">No active users in database.</td>
-                    </tr>
-                {% endif %}
-            </tbody>
-        </table>
-
-        <div class="logout-container">
-            <a class="logout" href="/">Sign Out</a>
+        <div class="results-box" style="min-height: auto; padding: 15px 25px;">
+            <h2>System Administrator Dashboard Workspace</h2>
+            <p style="font-size: 1.1rem; color: #001b57;">Hello administrative operator, your global monitoring controls are loaded below.</p>
         </div>
-    </div>
+
+        {% if book %}
+            <div class="results-box">
+                <h2>Results for: {{ book.title }}</h2>
+                <p><strong>Location:</strong> {{ book.room }}</p>
+                <p><strong>Total Capacity:</strong> {{ book.capacity }} items</p>
+                <p><strong>Is Available:</strong>
+                    {% if book.available %}
+                        <span style="color: green; font-weight: bold;">Available</span>
+                    {% else %}
+                        <span style="color: red; font-weight: bold;">Checked Out</span>
+                    {% endif %}
+                </p>
+            </div>
+        {% endif %}
+
+        <div class="results-box">
+            <h2>Global Inventory Management Directory</h2>
+            <table class="status-table">
+                <thead>
+                    <tr>
+                        <th>Book Title</th>
+                        <th>Room Location</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if books %}
+                        {% for b_title, b_info in books.items() %}
+                        <tr>
+                            <td>{{ b_title.title() }}</td>
+                            <td>{{ b_info.room if b_info is mapping else 'N/A' }}</td>
+                            <td>
+                                {% if b_info is mapping and b_info.available %}
+                                    <span style="color: green; font-weight: bold;">Available</span>
+                                {% else %}
+                                    <span style="color: red; font-weight: bold;">Loaned</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <form action="/toggle_book" method="POST" style="margin: 0; display: inline;">
+                                    <input type="hidden" name="username" value="{{ username }}">
+                                    <input type="hidden" name="role" value="{{ role }}">
+                                    <input type="hidden" name="title" value="{{ b_title }}">
+                                    <button type="submit" style="padding: 4px 8px; font-size: 11px; cursor: pointer; color: black;">Toggle Status</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4">No catalog inventory records stored.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="results-box">
+            <h2>System User Directory</h2>
+            <table class="status-table">
+                <thead>
+                    <tr>
+                        <th>Email Account</th>
+                        <th>Designated Role</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if users %}
+                        {% for u_email, u_data in users.items() %}
+                        <tr>
+                            <td>{{ u_email }}</td>
+                            <td>
+                                <strong>
+                                    {% if u_data is mapping %}
+                                        {{ u_data.get('role', 'student') | upper }}
+                                    {% else %}
+                                        STUDENT
+                                    {% endif %}
+                                </strong>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="2">No active users in database.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </main>
 </body>
 </html>

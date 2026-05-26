@@ -39,6 +39,8 @@
             padding: 20px;
             background-color: #001b57;
             color: white;
+            display: flex;
+            flex-direction: column;
             overflow-y: auto;
         }
 
@@ -71,10 +73,6 @@
             border: none;
             background-color: #162c99;
             color: white;
-        }
-
-        .search-box button:hover {
-            background-color: #0b1c70;
         }
 
         .error-message {
@@ -146,43 +144,51 @@
             background-color: #001b57;
         }
 
-        .sidebar-link {
+        .btn-sidebar-login {
             display: block;
-            margin-top: 30px;
-            color: #9cb2ff;
-            text-decoration: none;
-            font-size: 0.9rem;
+            width: 100%;
+            padding: 10px;
+            margin-top: auto;
+            background-color: #162c99;
+            color: white;
+            border: 1px solid #9cb2ff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
             font-weight: bold;
+            font-size: 0.9rem;
+            text-align: center;
         }
 
-        .sidebar-link:hover {
-            text-decoration: underline;
+        .btn-sidebar-login:hover {
+            background-color: #0d2c54;
+            border-color: white;
         }
 
-        /* Form styling for internal widgets */
+        /* Widget Forms inside Side panel */
         .widget-form {
             display: flex;
             flex-direction: column;
             gap: 10px;
             margin-top: 15px;
+            margin-bottom: 25px;
             background: rgba(255, 255, 255, 0.05);
-            padding: 15px;
+            padding: 12px;
             border-radius: 4px;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .widget-form label {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: bold;
             color: #cbd5e1;
         }
 
         .widget-form input, .widget-form select {
-            padding: 8px;
-            font-size: 0.85rem;
+            padding: 6px;
+            font-size: 0.8rem;
             border-radius: 4px;
             border: 1px solid #ccc;
-            width: 100%;
         }
 
         .widget-form button {
@@ -217,7 +223,7 @@
             color: #333;
         }
 
-        /* Modal Overlay for Guests */
+        /* Modal Overlay configuration */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -250,7 +256,7 @@
         .modal-box p {
             font-size: 0.95rem;
             color: #444;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             line-height: 1.4;
         }
 
@@ -263,6 +269,7 @@
             font-weight: bold;
             cursor: pointer;
             width: 100%;
+            margin-top: 8px;
         }
 
         .modal-btn:hover {
@@ -274,7 +281,7 @@
 
     <header class="header">
         <h1>SmartLib Home Page</h1>
-        <p>Logged in as: <strong>{{ username }}</strong> <span class="role-badge">{{ role }}</span></p>
+        <p>Logged in as: <strong>{{ username }}</strong> <span class="role-badge">{{ role }} state</span></p>
     </header>
 
     <aside class="sidebar">
@@ -290,7 +297,7 @@
             <p class="error-message">{{ error }}</p>
         {% endif %}
 
-        <!-- SIDEBAR ROLE JINJA SWITCH -->
+        <!-- SIDEBAR INTEGRATION ACTIONS -->
         {% if role == 'librarian' %}
             <h2>Librarian Actions</h2>
             <form action="/add_book" method="POST" class="widget-form">
@@ -334,20 +341,22 @@
             </form>
         {% endif %}
 
-        <a href="/" class="sidebar-link">← Return to Sign In</a>
+        <!-- SIGN IN / LOG OUT CONTROL BUTTON -->
+        {% if role == 'guest' %}
+            <button type="button" class="btn-sidebar-login" onclick="goToScreen('login')">Sign In to Account</button>
+        {% else %}
+            <!-- Drop authentication variables via base redirection to revert to Guest state -->
+            <button type="button" class="btn-sidebar-login" style="background-color: #555; border-color: #ccc;" onclick="window.location.href='/dashboard'">Sign Out</button>
+        {% endif %}
     </aside>
 
     <main class="main-content">
-        <!-- Display status updates directly in workspace view -->
+        <!-- Backend transaction flash state monitor -->
         {% with messages = get_flashed_messages(category_filter=["success", "error"]) %}
           {% if messages %}
             {% for message in messages %}
-              <div style="background-color: #ffd2d2; border: 1px solid #f5c2c2; color: #721c24; padding: 12px; border-radius: 4px; font-size: 0.9rem; margin-bottom: 10px;">
-                  {% if 'denied' in message or 'restricted' in message %}
-                      <strong>Access Error:</strong> {{ message }}
-                  {% else %}
-                      <strong>Status Notice:</strong> {{ message }}
-                  {% endif %}
+              <div style="background-color: #ffcccc; border: 1px solid #f5b3b3; color: #801313; padding: 12px; border-radius: 4px; font-size: 0.9rem;">
+                  <strong>System Notice:</strong> {{ message }}
               </div>
             {% endfor %}
           {% endif %}
@@ -395,7 +404,7 @@
             </div>
         {% endif %}
 
-        <!-- CONTENT AREA ROLE JINJA SWITCH -->
+        <!-- MAIN AREA ROLE SWITCH DETAILS -->
         {% if role == 'librarian' %}
             <div class="results-box">
                 <h2>Global Inventory Management Directory</h2>
@@ -458,12 +467,12 @@
         {% endif %}
     </main>
 
-    <!-- Modal Overlay for Guests (Uses fixed position to prevent shifting CSS Grid tracks) -->
     <div class="modal-overlay" id="gateModal">
         <div class="modal-box">
             <h4>Access Restricted</h4>
             <p id="gateMessage">You must register an institutional profile to perform this action.</p>
-            <button class="modal-btn" onclick="goToRegistration()">Sign Up Now</button>
+            <button class="modal-btn" onclick="goToScreen('login')">Go to Log In</button>
+            <button class="modal-btn" style="background-color: #555;" onclick="goToScreen('signup')">Create an Account</button>
         </div>
     </div>
 
@@ -473,19 +482,24 @@
             const message = document.getElementById('gateMessage');
 
             if (actionType === 'borrow') {
-                message.innerText = "Borrowing items requires an active profile. Please register an account to borrow materials.";
+                message.innerText = "Borrowing items requires an active institutional identity. Please log in or register an account to borrow materials.";
             } else if (actionType === 'reserve') {
-                message.innerText = "Study space allocations are locked to verified accounts. Please sign up to reserve spaces.";
+                message.innerText = "Study space allocations are locked to verified accounts. Please log in or register to reserve spaces.";
             }
 
             modal.style.display = 'flex';
         }
 
-        function goToRegistration() {
-            window.location.href = "{{ url_for('signup') }}";
+        // Script handler matches button configuration case-sensitively to fire window redirection cleanly
+        function goToScreen(screenType) {
+            if (screenType === 'login') {
+                window.location.href = "{{ url_for('login') }}";
+            } else if (screenType === 'signup') {
+                window.location.href = "{{ url_for('signup') }}";
+            }
         }
 
-        // Close modal overlay window on background click
+        // Close modal when guest clicks outside the container box
         window.onclick = function(event) {
             const modal = document.getElementById('gateModal');
             if (event.target === modal) {

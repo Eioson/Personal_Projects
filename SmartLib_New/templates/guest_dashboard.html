@@ -2,289 +2,140 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmartLib - Guest Hub</title>
     <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f8f9fa;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            display: grid;
+            grid-template-rows: auto 1fr;
+            grid-template-columns: 280px 1fr;
+            height: 100vh;
+        }
+        .header {
+            grid-column: 1 / -1;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+            background-color: #162c99;
+            color: white;
+            position: relative;
+            z-index: 10;
+        }
+        .header h1 { font-size: 2rem; margin-bottom: 5px; }
+        .sidebar {
+            grid-column: 1;
+            padding: 20px;
+            background-color: #001b57;
+            color: white;
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
+            overflow-y: auto;
         }
-
-        /* 1) Dark Blue Header Banner */
-        .header-banner {
-            background-color: #0d2c54;
-            color: white;
-            padding: 20px;
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            letter-spacing: 1px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        /* Flex Wrapper for Layout Elements */
-        .workspace-container {
-            display: flex;
-            flex: 1;
-        }
-
-        /* 2) Dark Blue Left-Hand Sidebar */
-        .sidebar {
-            background-color: #1a3e66;
-            color: white;
-            width: 250px;
-            padding: 30px 20px;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
-            box-sizing: border-box;
-        }
-
-        .sidebar h3 {
-            font-size: 18px;
-            margin-top: 0;
-            margin-bottom: 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-            padding-bottom: 10px;
-        }
-
-        /* 3) Main Content Box Area */
+        .sidebar h2 { font-size: 1.2rem; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; }
+        .search-box { display: flex; gap: 5px; margin-bottom: 15px; }
+        .search-box input { padding: 6px; font-size: 0.9rem; width: 100%; border-radius: 4px; border: 1px solid #ccc; }
+        .search-box button { padding: 6px 12px; cursor: pointer; font-weight: bold; border-radius: 4px; border: none; background-color: #162c99; color: white; }
+        .error-message { color: #ff4d4d; font-weight: bold; margin-top: 10px; font-size: 0.9rem; }
         .main-content {
-            flex: 1;
-            padding: 40px;
+            grid-column: 2;
+            padding: 20px;
+            background-color: #e7ebff;
             display: flex;
-            justify-content: center;
-            align-items: flex-start;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
         }
-
-        .content-box {
-            background: white;
-            padding: 35px;
-            border-radius: 6px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            width: 460px;
-            border: 1px solid #eef0f2;
-        }
-
-        input, button {
-            padding: 11px;
-            margin: 10px 0;
-            border-radius: 4px;
-            font-size: 14px;
-            box-sizing: border-box;
-        }
-
-        input {
-            border: 1px solid #ccc;
-            width: 100%;
-        }
-
-        .btn-primary {
-            background-color: #007acc;
-            color: white;
-            border: none;
-            cursor: pointer;
-            width: 100%;
-            font-weight: bold;
-        }
-
-        .btn-primary:hover {
-            background-color: #005999;
-        }
-
-        .btn-action {
-            background-color: #e0e0e0;
-            color: #333;
-            border: 1px solid #ccc;
-            cursor: pointer;
-            width: 48%;
-            font-weight: bold;
-            margin: 5px 0;
-            transition: all 0.2s;
-        }
-
-        .btn-action:hover {
-            background-color: #d0d0d0;
-        }
-
-        .action-row {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 15px;
-        }
-
-        .badge {
-            padding: 3px 8px;
-            background: #e0f2fe;
-            color: #0369a1;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        .logout {
-            margin-top: 25px;
-            display: inline-block;
-            color: #007acc;
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        .logout:hover {
-            text-decoration: underline;
-        }
-
-        /* Dynamic Popup Modal Container */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .modal-box {
-            background: white;
-            padding: 30px;
-            border-radius: 6px;
-            text-align: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-            width: 320px;
-            animation: fadeIn 0.25s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { transform: scale(0.9); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .modal-box h4 {
-            margin-top: 0;
-            font-size: 18px;
-            color: #0d2c54;
-        }
-
-        .modal-box p {
-            font-size: 14px;
-            color: #555;
-            margin-bottom: 25px;
-            line-height: 1.4;
-        }
-
-        .modal-btn {
-            background-color: #007acc;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-        }
-
-        .modal-btn:hover {
-            background-color: #005999;
-        }
+        .results-box { border: 2px solid #000; border-radius: 4px; padding: 25px; min-height: auto; background-color: #ffffff; }
+        .results-box h2 { margin-bottom: 15px; font-size: 1.4rem; color: #001b57; }
+        .results-box p { margin-bottom: 10px; font-size: 1.1rem; }
+        .role-badge { display: inline-block; padding: 3px 8px; background: #e0f2fe; color: #0369a1; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; margin-left: 10px; }
+        .action-row { display: flex; gap: 15px; margin-top: 20px; }
+        .btn-action { padding: 10px 20px; background-color: #162c99; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; }
+        .btn-action:hover { background-color: #001b57; }
+        .btn-sidebar-login { display: block; width: 100%; padding: 10px; margin-top: auto; background-color: #162c99; color: white; border: 1px solid #9cb2ff; border-radius: 4px; cursor: pointer; font-family: Verdana, Geneva, Tahoma, sans-serif; font-weight: bold; font-size: 0.9rem; text-align: center; }
+        .btn-sidebar-login:hover { background-color: #0d2c54; border-color: white; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-box { background: white; padding: 30px; border-radius: 6px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.3); width: 340px; }
+        .modal-box h4 { margin-top: 0; font-size: 1.2rem; color: #001b57; margin-bottom: 12px; }
+        .modal-box p { font-size: 0.95rem; color: #444; margin-bottom: 20px; line-height: 1.4; }
+        .modal-btn { background-color: #162c99; color: white; border: none; padding: 11px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 8px; }
+        .modal-btn:hover { background-color: #001b57; }
     </style>
 </head>
 <body>
-
-    <div class="header-banner">SmartLib Home Page</div>
-
-    <div class="workspace-container">
-
-        <div class="sidebar">
-            <h3>Find Book Option</h3>
-            <p style="font-size: 13px; color: #cbd5e1; line-height: 1.5; margin-bottom: 25px;">
-                Find active materials in our university's reference catalog. Use the sidebar link to return to the sign-in prompt.
-            </p>
-            <a href="/" style="color: #60a5fa; text-decoration: none; font-size: 13px; font-weight: bold;">← Return to Sign In</a>
+    <header class="header">
+        <h1>SmartLib Home Page</h1>
+        <p>Logged in as: <strong>{{ username }}</strong> <span class="role-badge">Guest Mode</span></p>
+    </header>
+    <aside class="sidebar">
+        <h2>Find Book Option</h2>
+        <form method="GET" action="/dashboard" class="search-box">
+            <input type="hidden" name="username" value="{{ username }}">
+            <input type="hidden" name="role" value="{{ role }}">
+            <input type="text" name="query" placeholder="Type book name here..." required>
+            <button type="submit">Search</button>
+        </form>
+        {% if error %}<p class="error-message">{{ error }}</p>{% endif %}
+        <button type="button" class="btn-sidebar-login" onclick="goToScreen('login')">Sign In to Account</button>
+    </aside>
+    <main class="main-content">
+        <div class="results-box" style="min-height: auto; padding: 15px 25px;">
+            <h2>Guest Discovery Console</h2>
+            <p>Browse active reference materials and verify space availability.</p>
         </div>
-
-        <div class="main-content">
-            <div class="content-box">
-                <h2 style="font-weight: 300; margin-top: 0;">Guest Discovery Console</h2>
-                <p>Viewing catalog as: <strong>{{ username }}</strong> <span class="badge">Guest State</span></p>
-                <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-
-                <h3>Search Library Catalog</h3>
-                <form action="/dashboard" method="GET">
-                    <input type="hidden" name="username" value="{{ username }}">
-                    <input type="hidden" name="role" value="guest">
-                    <input type="text" name="query" placeholder="e.g., lajan littera" required>
-                    <button type="submit" class="btn-primary">Verify Material Status</button>
-                </form>
-
-                {% if book %}
-                    <div style="background: #e6f7ff; padding: 15px; margin-top: 15px; border-radius: 4px; text-align: left; font-size: 14px; border: 1px solid #bae7ff;">
-                        <p style="margin: 4px 0;"><strong>Title:</strong> {{ book.title }}</p>
-                        <p style="margin: 4px 0;"><strong>Location:</strong> {{ book.room }} (Capacity: {{ book.capacity }})</p>
-                        <p style="margin: 4px 0;"><strong>Status:</strong>
-                            {% if book.available %}
-                                <span style="color: green; font-weight: bold;">Available for Borrowing</span>
-                            {% else %}
-                                <span style="color: red; font-weight: bold;">Checked Out</span>
-                            {% endif %}
-                        </p>
-
-                        <div class="action-row">
-                            <button type="button" class="btn-action" onclick="showGuestRestrictionModal('borrow')">Borrow Material</button>
-                            <button type="button" class="btn-action" onclick="showGuestRestrictionModal('reserve')">Reserve Space</button>
-                        </div>
-                    </div>
-                {% elif error %}
-                    <p style="color: #d32f2f; background: #ffebee; border: 1px solid #ffcdd2; padding: 10px; border-radius: 4px; margin-top: 15px; font-size: 13px;">
-                        {{ error }}
-                    </p>
-                {% endif %}
-
-                <hr style="border: 0; border-top: 1px solid #eee; margin: 25px 0;">
-                <h3>Study Space Vacancy</h3>
-                <p style="font-size: 14px; color: #555; margin-bottom: 20px;">Room 1 (R1) Capacity: <strong>15 slots left</strong></p>
-                <button type="button" class="btn-primary" style="background-color: #555;" onclick="showGuestRestrictionModal('reserve')">Book Student Space</button>
-
-                <div style="text-align: center;">
-                    <a class="logout" href="/">Exit Workspace</a>
+        {% if book %}
+            <div class="results-box">
+                <h2>Results for: {{ book.title }}</h2>
+                <p><strong>Location:</strong> {{ book.room }}</p>
+                <p><strong>Total Capacity:</strong> {{ book.capacity }} items</p>
+                <p><strong>Is Available:</strong>
+                    {% if book.available %}
+                        <span style="color: green; font-weight: bold;">Available</span>
+                    {% else %}
+                        <span style="color: red; font-weight: bold;">Checked Out</span>
+                    {% endif %}
+                </p>
+                <div class="action-row">
+                    <button type="button" class="btn-action" onclick="openGateModal('borrow')">Borrow Material</button>
+                    <button type="button" class="btn-action" style="background-color: #555;" onclick="openGateModal('reserve')">Reserve Space</button>
                 </div>
             </div>
-        </div>
-
-    </div>
-
-    <div class="modal-overlay" id="restrictionModal">
+        {% else %}
+            <div class="results-box">
+                <p style="color: #666; font-style: italic;">Search for a book to view details here.</p>
+            </div>
+        {% endif %}
+    </main>
+    <div class="modal-overlay" id="gateModal">
         <div class="modal-box">
             <h4>Access Restricted</h4>
-            <p id="restrictionText">You must register an institutional profile to perform this action.</p>
-            <button class="modal-btn" onclick="redirectToSignup()">Sign Up Now</button>
+            <p id="gateMessage">You must register an institutional profile to perform this action.</p>
+            <button class="modal-btn" onclick="goToScreen('login')">Go to Log In</button>
+            <button class="modal-btn" style="background-color: #555;" onclick="goToScreen('signup')">Create an Account</button>
         </div>
     </div>
-
     <script>
-        function showGuestRestrictionModal(actionType) {
-            const modal = document.getElementById('restrictionModal');
-            const restrictionText = document.getElementById('restrictionText');
-
+        function openGateModal(actionType) {
+            const modal = document.getElementById('gateModal');
+            const message = document.getElementById('gateMessage');
             if (actionType === 'borrow') {
-                restrictionText.innerText = "Borrowing resources is restricted to authenticated accounts. Please register to borrow this book.";
+                message.innerText = "Borrowing items requires an active institutional identity. Please log in or register an account to borrow materials.";
             } else if (actionType === 'reserve') {
-                restrictionText.innerText = "Study space reservation is restricted to authenticated accounts. Please register to reserve spaces.";
-            } else {
-                restrictionText.innerText = "This action requires an institutional user profile. Please create an account.";
+                message.innerText = "Study space allocations are locked to verified accounts. Please log in or register to reserve spaces.";
             }
-
             modal.style.display = 'flex';
         }
-
-        function redirectToSignup() {
-            window.location.href = "{{ url_for('signup') }}";
+        function goToScreen(screenType) {
+            if (screenType === 'login') {
+                window.location.href = "{{ url_for('login') }}";
+            } else if (screenType === 'signup') {
+                window.location.href = "{{ url_for('signup') }}";
+            }
+        }
+        window.onclick = function(event) {
+            const modal = document.getElementById('gateModal');
+            if (event.target === modal) { modal.style.display = 'none'; }
         }
     </script>
 </body>

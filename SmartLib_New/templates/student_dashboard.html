@@ -1,104 +1,109 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmartLib - Student Hub</title>
     <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: sans-serif;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            display: grid;
+            grid-template-rows: auto 1fr;
+            grid-template-columns: 280px 1fr;
+            height: 100vh;
+        }
+        .header {
+            grid-column: 1 / -1;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+            background-color: #162c99;
+            color: white;
+            position: relative;
+            z-index: 10;
+        }
+        .header h1 { font-size: 2rem; margin-bottom: 5px; }
+        .sidebar {
+            grid-column: 1;
+            padding: 20px;
+            background-color: #001b57;
+            color: white;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            padding: 50px 0;
-            margin: 0;
-            background-color: #f8f9fa;
+            overflow-y: auto;
         }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 6px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            width: 420px;
-            text-align: center;
-            border: 1px solid #eef0f2;
+        .sidebar h2 { font-size: 1.2rem; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; }
+        .search-box { display: flex; gap: 5px; margin-bottom: 15px; }
+        .search-box input { padding: 6px; font-size: 0.9rem; width: 100%; border-radius: 4px; border: 1px solid #ccc; }
+        .search-box button { padding: 6px 12px; cursor: pointer; font-weight: bold; border-radius: 4px; border: none; background-color: #162c99; color: white; }
+        .error-message { color: #ff4d4d; font-weight: bold; margin-top: 10px; font-size: 0.9rem; }
+        .main-content {
+            grid-column: 2;
+            padding: 20px;
+            background-color: #e7ebff;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
         }
-        input, button {
-            padding: 11px;
-            margin: 10px 0;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        input {
-            border: 1px solid #ccc;
-            width: 88%;
-        }
-        button {
-            background-color: #007acc;
-            color: white;
-            border: none;
-            cursor: pointer;
-            width: 94%;
-            font-weight: bold;
-        }
-        button:hover {
-            background-color: #005999;
-        }
-        .badge {
-            padding: 2px 6px;
-            background: #e1f5fe;
-            color: #0288d1;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: bold;
-        }
-        .logout {
-            margin-top: 25px;
-            display: inline-block;
-            color: #777;
-            text-decoration: none;
-            font-size: 14px;
-        }
-        .logout:hover {
-            color: #ff3333;
-        }
+        .results-box { border: 2px solid #000; border-radius: 4px; padding: 25px; min-height: auto; background-color: #ffffff; }
+        .results-box h2 { margin-bottom: 15px; font-size: 1.4rem; color: #001b57; }
+        .results-box p { margin-bottom: 10px; font-size: 1.1rem; }
+        .role-badge { display: inline-block; padding: 3px 8px; background: #e0f2fe; color: #0369a1; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; margin-left: 10px; }
+        .action-row { display: flex; gap: 15px; margin-top: 20px; }
+        .btn-action { padding: 10px 20px; background-color: #162c99; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; }
+        .btn-action:hover { background-color: #001b57; }
+        .btn-sidebar-login { display: block; width: 100%; padding: 10px; margin-top: auto; background-color: #555; color: white; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; font-family: Verdana, Geneva, Tahoma, sans-serif; font-weight: bold; font-size: 0.9rem; text-align: center; text-decoration: none; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Student Workspace</h1>
-        <p>User: <strong>{{ username }}</strong> <span class="badge">Student</span></p>
-        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-
-        <h3>Search Library Inventory</h3>
-        <form action="/dashboard" method="GET">
+    <header class="header">
+        <h1>SmartLib Home Page</h1>
+        <p>Logged in as: <strong>{{ username }}</strong> <span class="role-badge">Student</span></p>
+    </header>
+    <aside class="sidebar">
+        <h2>Find Book Option</h2>
+        <form method="GET" action="/dashboard" class="search-box">
             <input type="hidden" name="username" value="{{ username }}">
-            <input type="hidden" name="role" value="student">
-            <input type="text" name="query" placeholder="e.g., lajan littera" required>
-            <button type="submit">Verify Material Status</button>
+            <input type="hidden" name="role" value="{{ role }}">
+            <input type="text" name="query" placeholder="Type book name here..." required>
+            <button type="submit">Search</button>
         </form>
-
+        {% if error %}<p class="error-message">{{ error }}</p>{% endif %}
+        <a href="/dashboard" class="btn-sidebar-login">Sign Out</a>
+    </aside>
+    <main class="main-content">
+        <div class="results-box" style="min-height: auto; padding: 15px 25px;">
+            <h2>Student Discovery Console</h2>
+            <p>Browse active reference materials and verify space availability.</p>
+        </div>
         {% if book %}
-            <div style="background: #e6f7ff; padding: 15px; margin-top: 15px; border-radius: 4px; text-align: left; font-size: 14px; border: 1px solid #bae7ff;">
-                <p style="margin: 4px 0;"><strong>Title:</strong> {{ book.title }}</p>
-                <p style="margin: 4px 0;"><strong>Location:</strong> {{ book.room }} (Capacity: {{ book.capacity }})</p>
-                <p style="margin: 4px 0;"><strong>Status:</strong>
+            <div class="results-box">
+                <h2>Results for: {{ book.title }}</h2>
+                <p><strong>Location:</strong> {{ book.room }}</p>
+                <p><strong>Total Capacity:</strong> {{ book.capacity }} items</p>
+                <p><strong>Is Available:</strong>
                     {% if book.available %}
-                        <span style="color: green; font-weight: bold;">Available for Borrowing</span>
+                        <span style="color: green; font-weight: bold;">Available</span>
                     {% else %}
                         <span style="color: red; font-weight: bold;">Checked Out</span>
                     {% endif %}
                 </p>
+                <div class="action-row">
+                    <button type="button" class="btn-action" onclick="alert('Transaction processed successfully! Item checked out.')">Borrow Material</button>
+                    <button type="button" class="btn-action" style="background-color: #555;" onclick="alert('Student workspace queue request logged.')">Reserve Space</button>
+                </div>
             </div>
-        {% elif error %}
-            <p style="color: #d32f2f; background: #ffebee; border: 1px solid #ffcdd2; padding: 10px; border-radius: 4px; margin-top: 15px; font-size: 13px;">
-                {{ error }}
-            </p>
+        {% else %}
+            <div class="results-box">
+                <p style="color: #666; font-style: italic;">Search for a book to view details here.</p>
+            </div>
         {% endif %}
-
-        <hr style="border: 0; border-top: 1px solid #eee; margin: 25px 0;">
-        <h3>Study Space Vacancy</h3>
-        <p style="font-size: 14px; color: #555;">Room 1 (R1) Capacity: <strong>15 slots left</strong></p>
-
-        <a class="logout" href="/">Sign Out</a>
-    </div>
+        <div class="results-box">
+            <h2>Study Space Vacancy Tracker</h2>
+            <p>Room 1 (R1) Capacity: <strong>15 slots left</strong></p>
+            <p>Room 2 (R2) Capacity: <strong>30 slots left</strong></p>
+        </div>
+    </main>
 </body>
 </html>

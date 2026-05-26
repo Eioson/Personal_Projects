@@ -1,99 +1,50 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>SmartLib - Log In</title>
+    <meta charset="UTF-8">
+    <title>SmartLib - Sign In</title>
     <style>
         body {
-            font-family: sans-serif;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            background-color: #f8f9fa;
-            color: #333;
+            background-color: #e7ebff;
         }
-        h1 {
-            font-weight: 300;
-            margin-bottom: 20px;
-        }
+        h1 { margin-bottom: 25px; color: #001b57; }
         form {
             background: white;
             padding: 30px;
             border-radius: 6px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            width: 300px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            width: 320px;
             display: flex;
             flex-direction: column;
-            border: 1px solid #eef0f2;
+            border: 2px solid #001b57;
         }
-        label {
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: #555;
-        }
-        input {
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-            outline-color: #007acc;
-        }
-        button {
-            padding: 11px;
-            background-color: #007acc;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-            width: 100%;
-        }
-        button:hover {
-            background-color: #005999;
-        }
-        .signup-link {
-            margin-top: 25px;
-            text-align: center;
-            font-size: 14px;
-        }
-        a {
-            color: #007acc;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        .alert-box {
-            background-color: #ffeef0;
-            border-left: 4px solid #f85149;
-            color: #a01c24;
-            padding: 10px;
-            width: 310px;
-            font-size: 13px;
-            margin-bottom: 15px;
-            border-radius: 4px;
-        }
+        label { font-size: 13px; font-weight: bold; margin-bottom: 6px; color: #001b57; }
+        input { padding: 10px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+        button { padding: 11px; background-color: #162c99; color: white; border: none; border-radius: 4px; font-weight: bold; font-size: 14px; cursor: pointer; }
+        button:hover { background-color: #001b57; }
+        .links-container { margin-top: 25px; text-align: center; font-size: 13px; }
+        a { color: #162c99; text-decoration: none; font-weight: bold; }
+        a:hover { text-decoration: underline; }
+        .error-message { background-color: #ffebee; color: #c62828; border: 1px solid #ffcdd2; padding: 10px; margin-bottom: 15px; border-radius: 4px; font-size: 13px; text-align: center; }
     </style>
 </head>
 <body>
     <h1>SmartLib Sign In</h1>
 
-    {% with messages = get_flashed_messages(category_filter=["error"]) %}
-      {% if messages %}
-        {% for message in messages %}
-          <div class="alert-box"><strong>Alert:</strong> {{ message }}</div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
+    {% if error %}
+        <div class="error-message"><strong>Error:</strong> {{ error }}</div>
+    {% endif %}
 
-    <form action="/" method="POST">
-        <label>Email Address:</label>
-        <input type="email" name="email" placeholder="student@nu.edu.ph" required>
+    <form action="/login" method="POST">
+        <label>Institutional Account Email:</label>
+        <input type="text" name="username" placeholder="username@nu.edu.ph" required>
 
         <label>Password:</label>
         <input type="password" name="password" placeholder="Enter password" required>
@@ -101,8 +52,9 @@
         <button type="submit">Log In</button>
     </form>
 
-    <div class="signup-link">
-        <a href="/signup">New to SmartLib? Create an account here</a>
+    <div class="links-container">
+        <a href="/signup">Create an Account</a> |
+        <a href="/dashboard?username=Guest+User&role=guest" style="color: #555;">Browse as Guest</a>
     </div>
 </body>
 </html>
