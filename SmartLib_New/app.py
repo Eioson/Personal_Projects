@@ -5,30 +5,29 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 app = Flask(__name__)
 app.secret_key = 'smartlib_secret_key'
 
-# Decoupled JSON storage targets
-DB_FILE = 'users.json'
+# Local persistent database files
+USER_DB_FILE = 'users.json'
 BOOK_DB_FILE = 'book_inventory.json'
 
 
-# --- DATA FILE PERSISTENCE HELPERS ---
+# --- DATABASE FILE HELPERS ---
 
 def load_users():
-    """Loads users and auto-migrates old plain-text string formatting."""
-    if not os.path.exists(DB_FILE):
+    """Loads institutional user accounts and normalizes older database formats."""
+    if not os.path.exists(USER_DB_FILE):
         default_users = {
             "velascos@nu.edu.ph": {"password": "password123", "role": "student"},
             "patesel@student.nu-cebu.edu.ph": {"password": "password1234", "role": "student"},
             "teacher@nu.edu.ph": {"password": "password123", "role": "teacher"},
             "admin@nu.edu.ph": {"password": "password123", "role": "librarian"}
         }
-        with open(DB_FILE, 'w') as f:
+        with open(USER_DB_FILE, 'w') as f:
             json.dump(default_users, f, indent=4)
         return default_users
 
-    with open(DB_FILE, 'r') as f:
+    with open(USER_DB_FILE, 'r') as f:
         try:
             data = json.load(f)
-            # Normalization/Migration layer
             dirty = False
             sanitized = {}
             for email, payload in data.items():
@@ -45,7 +44,7 @@ def load_users():
                     dirty = True
 
             if dirty:
-                with open(DB_FILE, 'w') as f_out:
+                with open(USER_DB_FILE, 'w') as f_out:
                     json.dump(sanitized, f_out, indent=4)
             return sanitized
         except json.JSONDecodeError:
@@ -53,7 +52,7 @@ def load_users():
 
 
 def load_books():
-    """Loads material inventory dynamically from JSON storage."""
+    """Loads physical catalog inventory from persistent JSON storage."""
     if not os.path.exists(BOOK_DB_FILE):
         default_books = {
             "lajan littera": {"room": "Room 1", "capacity": 15, "available": True},
@@ -66,7 +65,6 @@ def load_books():
     with open(BOOK_DB_FILE, 'r') as f:
         try:
             data = json.load(f)
-            # Ensure books match strict dictionary validation rules
             dirty = False
             sanitized = {}
             for title, info in data.items():
@@ -96,7 +94,7 @@ def load_books():
 def save_user(email, password, role):
     users = load_users()
     users[email] = {"password": password, "role": role}
-    with open(DB_FILE, 'w') as f:
+    with open(USER_DB_FILE, 'w') as f:
         json.dump(users, f, indent=4)
 
 
@@ -107,7 +105,7 @@ def save_books(books):
 
 # --- ROUTING LOGIC ---
 
-# 1) THE HYPER-SPECIFIC LOGIN CHECKPOINT (Fixed parameter alignments)
+# 1) THE HYPER-SPECIFIC LOGIN CHECKPOINT (Role extracted directly from database payload)
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error_msg = None
@@ -121,9 +119,10 @@ def login():
             correct_password = users_db[input_username].get('password')
 
             if input_password == correct_password:
+                # Extracts role string from persistent storage data
                 user_role = users_db[input_username].get('role', '').lower().strip()
 
-                # Rigid redirection handoff checkpoints
+                # Forced redirection handoffs
                 if user_role == 'student':
                     print(f"[AUTH SUCCESS] Routing {input_username} to STUDENT dashboard.")
                     return redirect(url_for('dashboard', username=input_username, role='student'))
@@ -137,22 +136,22 @@ def login():
                     return redirect(url_for('dashboard', username=input_username, role='librarian'))
 
                 else:
-                    print(f"[WARNING] Unknown role '{user_role}' for user {input_username}. Defaulting to guest.")
+                    print(f"[WARNING] Unknown role '{user_role}'. Defaulting to guest.")
                     return redirect(url_for('dashboard', username=input_username, role='guest'))
             else:
                 error_msg = "Incorrect password. Please try again."
         else:
-            error_msg = "Username not found in our database."
+            error_msg = "Username or Email not found in our database."
 
     return render_template('login.html', error=error_msg)
 
 
-# 2) DYNAMIC SIGNUP REGISTRATION INTERFACE
+# 2) ACCOUNT CREATION LOGIC (Role dropdown active on frontend form)
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     error_msg = None
     if request.method == 'POST':
-        email = request.form.get('email', '').strip().lower()
+        email = request.form.get('username', '').strip().lower()
         password = request.form.get('password')
         confirm_password = request.form.get('confirm_password')
         role = request.form.get('role', 'student').lower().strip()
@@ -164,7 +163,7 @@ def signup():
         else:
             users = load_users()
             if email in users:
-                error_msg = "This email is already registered."
+                error_msg = "This account is already registered."
             else:
                 save_user(email, password, role)
                 flash("Registration successful!", "success")
@@ -180,10 +179,10 @@ def dashboard():
     username = request.args.get('username', 'Guest User').strip()
     role = request.args.get('role', 'guest').lower().strip()
 
-    # Process queries from both POST search forms and GET queries
+    # Capture state arguments from search POST or address bar GET requests
     if request.method == 'POST':
         query = request.form.get('query', '').strip().lower()
-        if request.form.get('username'): username = request.form.get('username')
+        if request.form.get('username'): username = request.form.get('username').strip()
         if request.form.get('role'): role = request.form.get('role').lower().strip()
     else:
         query = request.args.get('query', '').strip().lower()
@@ -199,22 +198,18 @@ def dashboard():
         else:
             error_message = f"Unfortunately, '{query.title()}' is not available. Please Try Again."
 
-    # Render dedicated view files based on verified role
+    # Direct conditional file dispatching
     if role == 'student':
-        return render_template('student_dashboard.html', username=username, role=role, book=book_results,
-                               error=error_message)
+        return render_template('student_dashboard.html', username=username, role=role, book=book_results, error=error_message)
     elif role == 'teacher':
-        return render_template('teacher_dashboard.html', username=username, role=role, book=book_results,
-                               error=error_message)
+        return render_template('teacher_dashboard.html', username=username, role=role, book=book_results, error=error_message, books=books)
     elif role == 'librarian':
-        return render_template('librarian_dashboard.html', username=username, role=role, book=book_results,
-                               error=error_message, books=books, users=load_users())
+        return render_template('librarian_dashboard.html', username=username, role=role, book=book_results, error=error_message, books=books, users=load_users())
     else:
-        return render_template('guest_dashboard.html', username=username, role='guest', book=book_results,
-                               error=error_message)
+        return render_template('guest_dashboard.html', username=username, role='guest', book=book_results, error=error_message)
 
 
-# --- RESOURCE RESERVATIONS & CATALOG MUTATIONS ---
+# --- MUTATION ENDPOINTS (GUEST PROTECTION INCLUDED) ---
 
 @app.route('/reserve_space', methods=['POST'])
 def reserve_space():
@@ -222,14 +217,14 @@ def reserve_space():
     role = request.form.get('role', 'guest').strip().lower()
 
     if role == 'guest':
-        flash("Action Restricted. Guest status is restricted from reserving rooms.", "error")
+        flash("Action Restricted. Guest status accounts are blocked from reserving workspaces.", "error")
         return redirect(url_for('dashboard', username=username, role=role))
 
     room_name = request.form.get('room_name', '').strip()
     time_slot = request.form.get('time_slot', '').strip()
 
     if room_name and time_slot:
-        flash(f"Classroom reserved: '{room_name}' on slot '{time_slot}'!", "success")
+        flash(f"Classroom reserved: '{room_name}' for slot '{time_slot}'!", "success")
     else:
         flash("Room and Time parameters are required.", "error")
 
@@ -242,7 +237,7 @@ def suggest_book():
     role = request.form.get('role', 'guest').strip().lower()
 
     if role == 'guest':
-        flash("Action Restricted. Guest status is restricted from recommending materials.", "error")
+        flash("Action Restricted. Guest status accounts are blocked from recommending books.", "error")
         return redirect(url_for('dashboard', username=username, role=role))
 
     book_title = request.form.get('book_title', '').strip()
@@ -260,7 +255,7 @@ def toggle_book():
     role = request.form.get('role', 'guest').strip().lower()
 
     if role == 'guest':
-        flash("Action Restricted. Administrative privileges required.", "error")
+        flash("Action Restricted. Administrative authorization is required.", "error")
         return redirect(url_for('dashboard', username=username, role=role))
 
     title = request.form.get('title', '').strip().lower()
@@ -281,7 +276,7 @@ def add_book():
     role = request.form.get('role', 'guest').strip().lower()
 
     if role == 'guest':
-        flash("Action Restricted. Administrative privileges required.", "error")
+        flash("Action Restricted. Administrative authorization is required.", "error")
         return redirect(url_for('dashboard', username=username, role=role))
 
     title = request.form.get('title', '').strip().lower()
@@ -302,7 +297,7 @@ def add_book():
     books[title] = {"room": room, "capacity": cap_val, "available": available}
     save_books(books)
 
-    flash(f"Registered new material: '{title.title()}' to storage archives.", "success")
+    flash(f"Registered material '{title.title()}' to storage catalog.", "success")
     return redirect(url_for('dashboard', username=username, role=role))
 
 

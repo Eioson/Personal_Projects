@@ -1,7 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
     <title>SmartLib - Sign In</title>
     <style>
         body {
@@ -14,47 +13,123 @@
             margin: 0;
             background-color: #e7ebff;
         }
-        h1 { margin-bottom: 25px; color: #001b57; }
+
+        h1 {
+            margin-bottom: 25px;
+            color: #001b57;
+        }
+
         form {
             background: white;
             padding: 30px;
-            border-radius: 6px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             width: 320px;
             display: flex;
             flex-direction: column;
             border: 2px solid #001b57;
         }
-        label { font-size: 13px; font-weight: bold; margin-bottom: 6px; color: #001b57; }
-        input { padding: 10px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
-        button { padding: 11px; background-color: #162c99; color: white; border: none; border-radius: 4px; font-weight: bold; font-size: 14px; cursor: pointer; }
-        button:hover { background-color: #001b57; }
-        .links-container { margin-top: 25px; text-align: center; font-size: 13px; }
-        a { color: #162c99; text-decoration: none; font-weight: bold; }
-        a:hover { text-decoration: underline; }
-        .error-message { background-color: #ffebee; color: #c62828; border: 1px solid #ffcdd2; padding: 10px; margin-bottom: 15px; border-radius: 4px; font-size: 13px; text-align: center; }
+
+        label {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 6px;
+            color: #333;
+        }
+
+        input {
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            background-color: #fff;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #162c99;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 5px;
+            align-self: center;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #001b57;
+        }
+
+        .btn-guest {
+            background-color: #555;
+            margin-top: 10px;
+            text-align: center;
+            text-decoration: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 14px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .btn-guest:hover {
+            background-color: #333;
+        }
+
+        .signup-link {
+            display: block;
+            margin-top: 25px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .signup-link a {
+            color: #162c99;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
     <h1>SmartLib Sign In</h1>
 
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <p style="color: red; margin-bottom: 15px; font-size: 14px;"><strong>Alert: {{ message }}</strong></p>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
     {% if error %}
-        <div class="error-message"><strong>Error:</strong> {{ error }}</div>
+        <p style="color: red; margin-bottom: 15px; font-size: 14px;"><strong>Alert: {{ error }}</strong></p>
     {% endif %}
 
     <form action="/login" method="POST">
-        <label>Institutional Account Email:</label>
-        <input type="text" name="username" placeholder="username@nu.edu.ph" required>
+        <label>Email Address / Username:</label>
+        <input type="text" name="username" placeholder="Enter username or email" required>
 
         <label>Password:</label>
         <input type="password" name="password" placeholder="Enter password" required>
 
         <button type="submit">Log In</button>
+
+        <a href="{{ url_for('dashboard', role='guest', username='Guest User') }}" class="btn-guest">Browse as Guest</a>
     </form>
 
-    <div class="links-container">
-        <a href="/signup">Create an Account</a> |
-        <a href="/dashboard?username=Guest+User&role=guest" style="color: #555;">Browse as Guest</a>
+    <div class="signup-link">
+        <a href="{{ url_for('signup') }}">New student? Create an account here</a>
     </div>
 </body>
 </html>
