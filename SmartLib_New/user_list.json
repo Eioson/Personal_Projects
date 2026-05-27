@@ -15,18 +15,6 @@
         "password": "password123",
         "role": "librarian"
     },
-    "lajan littera": {
-        "room": "Room 1",
-        "capacity": 15,
-        "available": true,
-        "role": "student"
-    },
-    "data structures": {
-        "room": "Room 2",
-        "capacity": 30,
-        "available": false,
-        "role": "student"
-    },
     "patesel@students.nu-cebu.edu.ph": {
         "password": "j9smL):U^4Q!\"Cm",
         "role": "student"

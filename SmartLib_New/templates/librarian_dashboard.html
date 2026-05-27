@@ -55,9 +55,11 @@
         .widget-form label { font-size: 0.75rem; font-weight: bold; color: #cbd5e1; }
         .widget-form input, .widget-form select { padding: 6px; font-size: 0.8rem; border-radius: 4px; border: 1px solid #ccc; }
         .widget-form button { padding: 8px; font-weight: bold; background-color: #162c99; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        .status-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 15px; }
-        .status-table th, .status-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        .status-table th { background-color: #f1f1f1; color: #333; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #001b57; color: white; }
+        .status-pill { padding: 3px 6px; border-radius: 4px; font-weight: bold; font-size: 0.75rem; text-transform: uppercase; }
     </style>
 </head>
 <body>
@@ -70,7 +72,7 @@
         <form method="GET" action="/dashboard" class="search-box">
             <input type="hidden" name="username" value="{{ username }}">
             <input type="hidden" name="role" value="{{ role }}">
-            <input type="text" name="query" placeholder="Type book name here..." required>
+            <input type="text" name="query" placeholder="Type book name..." required>
             <button type="submit">Search</button>
         </form>
         {% if error %}<p class="error-message">{{ error }}</p>{% endif %}
@@ -81,16 +83,27 @@
             <input type="hidden" name="role" value="{{ role }}">
             <label>Add Book Title:</label>
             <input type="text" name="title" placeholder="e.g., Python Basics" required>
-            <label>Assigned Room:</label>
-            <input type="text" name="room" placeholder="e.g., Room 3" required>
-            <label>Room Capacity Limit:</label>
-            <input type="number" name="capacity" value="25" required>
-            <label>Material Status:</label>
-            <select name="available">
-                <option value="true">Available</option>
-                <option value="false">Unavailable</option>
-            </select>
+            <label>Author Name:</label>
+            <input type="text" name="author" placeholder="e.g., John Smith" required>
+            <label>Media Type:</label>
+            <input type="text" name="media_type" placeholder="e.g., Physical" required>
             <button type="submit">Add Book</button>
+        </form>
+
+        <h2>Add Study Room</h2>
+        <form action="/add_room" method="POST" class="widget-form">
+            <input type="hidden" name="username" value="{{ username }}">
+            <input type="hidden" name="role" value="{{ role }}">
+            <label>Room Designation:</label>
+            <input type="text" name="room_name" placeholder="e.g., Study Room C" required>
+            <label>Occupancy:</label>
+            <select name="occupied">
+                <option value="false">Vacant</option>
+                <option value="true">Occupied</option>
+            </select>
+            <label>Availability Timer:</label>
+            <input type="text" name="time_limit" placeholder="e.g., 30 mins" required>
+            <button type="submit">Add Space</button>
         </form>
 
         <a href="/dashboard" class="btn-sidebar-login">Sign Out</a>
@@ -99,7 +112,7 @@
         {% with messages = get_flashed_messages(category_filter=["success", "error"]) %}
           {% if messages %}
             {% for message in messages %}
-              <div style="background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 12px; border-radius: 4px; font-size: 0.9rem;">
+              <div style="background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 12px; border-radius: 4px; font-size: 0.9rem; margin-bottom: 10px;">
                   <strong>Status Notice:</strong> {{ message }}
               </div>
             {% endfor %}
@@ -107,15 +120,15 @@
         {% endwith %}
 
         <div class="results-box" style="min-height: auto; padding: 15px 25px;">
-            <h2>System Administrator Dashboard Workspace</h2>
+            <h2>Admin Dashboard</h2>
             <p style="font-size: 1.1rem; color: #001b57;">Hello administrative operator, your global monitoring controls are loaded below.</p>
         </div>
 
         {% if book %}
             <div class="results-box">
                 <h2>Results for: {{ book.title }}</h2>
-                <p><strong>Location:</strong> {{ book.room }}</p>
-                <p><strong>Total Capacity:</strong> {{ book.capacity }} items</p>
+                <p><strong>Author Name:</strong> {{ book.author }}</p>
+                <p><strong>Media Style Type:</strong> {{ book.media_type }}</p>
                 <p><strong>Is Available:</strong>
                     {% if book.available %}
                         <span style="color: green; font-weight: bold;">Available</span>
@@ -126,45 +139,142 @@
             </div>
         {% endif %}
 
+        <!-- PENDING RESERVATIONS REVIEW QUEUE WIDGET -->
         <div class="results-box">
-            <h2>Global Inventory Management Directory</h2>
-            <table class="status-table">
+            <h2>Pending Reservations Review Queue</h2>
+            <p style="margin-bottom: 15px; color: #555; font-size: 0.9rem;">Approve or reject active workspace allocation requests submitted by students and faculty.</p>
+
+            {% set pending_allocs = namespace(count=0) %}
+            {% for res in reservations %}
+                {% if res.status == 'pending' %}
+                    {% set pending_allocs.count = pending_allocs.count + 1 %}
+                {% endif %}
+            {% endfor %}
+
+            {% if pending_allocs.count > 0 %}
+            <table>
                 <thead>
-                    <tr>
-                        <th>Book Title</th>
-                        <th>Room Location</th>
-                        <th>Status</th>
-                        <th>Action</th>
+                    <tr style="background-color: #001b57; color: white;">
+                        <th style="padding: 10px; border: 1px solid #ddd;">Request ID</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Room Designation</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Requester Email</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Time Requested</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% if books %}
-                        {% for b_title, b_info in books.items() %}
-                        <tr>
-                            <td>{{ b_title.title() }}</td>
-                            <td>{{ b_info.room if b_info is mapping else 'N/A' }}</td>
-                            <td>
-                                {% if b_info is mapping and b_info.available %}
-                                    <span style="color: green; font-weight: bold;">Available</span>
-                                {% else %}
-                                    <span style="color: red; font-weight: bold;">Loaned</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <form action="/toggle_book" method="POST" style="margin: 0; display: inline;">
-                                    <input type="hidden" name="username" value="{{ username }}">
-                                    <input type="hidden" name="role" value="{{ role }}">
-                                    <input type="hidden" name="title" value="{{ b_title }}">
-                                    <button type="submit" style="padding: 4px 8px; font-size: 11px; cursor: pointer; color: black;">Toggle Status</button>
-                                </form>
+                    {% for res in reservations %}
+                        {% if res.status == 'pending' %}
+                        <tr style="background-color: white;">
+                            <td style="padding: 10px; border: 1px solid #ddd; font-family: monospace;">#{{ res.id }}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold; color: #001b57;">{{ res.room_name }}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">{{ res.username }}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">{{ res.time_slot }}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">
+                                <div style="display: flex; gap: 5px;">
+                                    <form action="/approve_reservation/{{ res.id }}" method="POST" style="margin: 0; display: inline;">
+                                        <input type="hidden" name="username" value="{{ username }}">
+                                        <input type="hidden" name="role" value="{{ role }}">
+                                        <button type="submit" style="padding: 6px 12px; background-color: #15803d; color: white; border: none; border-radius: 4px; font-weight: bold; font-size: 0.8rem; cursor: pointer;">Approve</button>
+                                    </form>
+                                    <form action="/reject_reservation/{{ res.id }}" method="POST" style="margin: 0; display: inline;">
+                                        <input type="hidden" name="username" value="{{ username }}">
+                                        <input type="hidden" name="role" value="{{ role }}">
+                                        <button type="submit" style="padding: 6px 12px; background-color: #b91c1c; color: white; border: none; border-radius: 4px; font-weight: bold; font-size: 0.8rem; cursor: pointer;">Reject</button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
-                        {% endfor %}
-                    {% else %}
-                        <tr>
-                            <td colspan="4">No catalog inventory records stored.</td>
-                        </tr>
-                    {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+                <p style="color: #666; font-style: italic;">No pending study space reservation requests are currently logged.</p>
+            {% endif %}
+        </div>
+
+        <!-- TABLE 1: INSTITUTIONAL MEDIA CATALOG -->
+        <div class="results-box">
+            <h2>List of Books</h2>
+            <p style="margin-bottom: 15px; color: #555; font-size: 0.9rem;">Browse active media reference catalog indexes currently stored.</p>
+            <table>
+                <thead>
+                    <tr style="background-color: #001b57; color: white;">
+                        <th style="padding: 10px; border: 1px solid #ddd;">Book Title</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Media Type</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Author Name</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Publishing Date</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Status</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for title, info in books.items() %}
+                    <tr style="background-color: white;">
+                        <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold; color: #162c99;">{{ title.title() }}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">{{ info.media_type }}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">{{ info.author }}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">{{ info.published }}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">
+                            {% if info.available %}
+                                <span class="status-pill" style="color: #15803d; background-color: #dcfce7;">Available</span>
+                            {% else %}
+                                <span class="status-pill" style="color: #b91c1c; background-color: #fee2e2;">Checked Out</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">
+                            <form action="/toggle_book" method="POST" style="margin: 0; display: inline;">
+                                <input type="hidden" name="username" value="{{ username }}">
+                                <input type="hidden" name="role" value="{{ role }}">
+                                <input type="hidden" name="title" value="{{ title }}">
+                                <button type="submit" style="padding: 6px 12px; background-color: #162c99; color: white; border: none; border-radius: 4px; font-weight: bold; font-size: 0.8rem; cursor: pointer;">Toggle Status</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- TABLE 2: COLLABORATIVE STUDY ENVIRONMENTS -->
+        <div class="results-box">
+            <h2>Collaborative Study Environments</h2>
+            <p style="margin-bottom: 15px; color: #555; font-size: 0.9rem;">Review real-time study space delays and allocation clearances.</p>
+            <table>
+                <thead>
+                    <tr style="background-color: #001b57; color: white;">
+                        <th style="padding: 10px; border: 1px solid #ddd;">Room Designation</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Status</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Availability Window</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for name, info in rooms.items() %}
+                    <tr style="background-color: white;">
+                        <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold; color: #001b57;">{{ name }}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">
+                            {% if info.occupied %}
+                                <span class="status-pill" style="color: #b45309; background-color: #fef3c7;">Occupied</span>
+                            {% else %}
+                                <span class="status-pill" style="color: #15803d; background-color: #dcfce7;">Vacant</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 10px; border: 1px solid #ddd; font-family: monospace; font-weight: bold;">
+                            {% if info.occupied %}{{ info.time_until_available }}{% else %}Instant Access{% endif %}
+                        </td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">
+                            <form action="/toggle_room" method="POST" id="toggle_room_form_{{ loop.index }}" style="margin: 0; display: inline;">
+                                <input type="hidden" name="username" value="{{ username }}">
+                                <input type="hidden" name="role" value="{{ role }}">
+                                <input type="hidden" name="room_name" value="{{ name }}">
+                                <input type="hidden" name="time_until_available" id="time_input_{{ loop.index }}" value="45 mins">
+                                <button type="button" onclick="confirmRoomToggle('{{ name }}', {{ 'true' if info.occupied else 'false' }}, '{{ loop.index }}')" style="padding: 6px 12px; background-color: #162c99; color: white; border: none; border-radius: 4px; font-weight: bold; font-size: 0.8rem; cursor: pointer;">Toggle State</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -203,5 +313,20 @@
             </table>
         </div>
     </main>
+
+    <script>
+        function confirmRoomToggle(roomName, isOccupied, roomId) {
+            // Intercept toggle state action for prompts
+            if (!isOccupied) {
+                let time = prompt('Enter time duration until available (e.g., 1 hour, 30 mins):', '45 mins');
+                if (time) {
+                    document.getElementById('time_input_' + roomId).value = time;
+                    document.getElementById('toggle_room_form_' + roomId).submit();
+                }
+            } else {
+                document.getElementById('toggle_room_form_' + roomId).submit();
+            }
+        }
+    </script>
 </body>
 </html>

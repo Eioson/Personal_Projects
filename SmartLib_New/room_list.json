@@ -1,0 +1,18 @@
+{
+    "Study Room A": {
+        "occupied": false,
+        "time_until_available": "Instant Access"
+    },
+    "Multimedia Room": {
+        "occupied": false,
+        "time_until_available": "Instant Access"
+    },
+    "Meeting Room A": {
+        "occupied": false,
+        "time_until_available": "Instant Access"
+    },
+    "Meeting Room B": {
+        "occupied": false,
+        "time_until_available": "Instant Access"
+    }
+}

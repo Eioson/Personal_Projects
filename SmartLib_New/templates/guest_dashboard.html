@@ -53,14 +53,17 @@
         .action-row { display: flex; gap: 15px; margin-top: 20px; }
         .btn-action { padding: 10px 20px; background-color: #162c99; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; }
         .btn-action:hover { background-color: #001b57; }
-        .btn-sidebar-login { display: block; width: 100%; padding: 10px; margin-top: auto; background-color: #162c99; color: white; border: 1px solid #9cb2ff; border-radius: 4px; cursor: pointer; font-family: Verdana, Geneva, Tahoma, sans-serif; font-weight: bold; font-size: 0.9rem; text-align: center; }
+        .btn-sidebar-login { display: block; width: 100%; padding: 10px; margin-top: auto; background-color: #162c99; color: white; border: 1px solid #9cb2ff; border-radius: 4px; cursor: pointer; font-family: Verdana, Geneva, Tahoma, sans-serif; font-weight: bold; font-size: 0.9rem; text-align: center; text-decoration: none; }
         .btn-sidebar-login:hover { background-color: #0d2c54; border-color: white; }
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); justify-content: center; align-items: center; z-index: 1000; }
         .modal-box { background: white; padding: 30px; border-radius: 6px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.3); width: 340px; }
-        .modal-box h4 { margin-top: 0; font-size: 1.2rem; color: #001b57; margin-bottom: 12px; }
-        .modal-box p { font-size: 0.95rem; color: #444; margin-bottom: 20px; line-height: 1.4; }
         .modal-btn { background-color: #162c99; color: white; border: none; padding: 11px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 8px; }
         .modal-btn:hover { background-color: #001b57; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #001b57; color: white; }
+        .status-pill { padding: 3px 6px; border-radius: 4px; font-weight: bold; font-size: 0.75rem; text-transform: uppercase; }
     </style>
 </head>
 <body>
@@ -69,7 +72,7 @@
         <p>Logged in as: <strong>{{ username }}</strong> <span class="role-badge">Guest Mode</span></p>
     </header>
     <aside class="sidebar">
-        <h2>Find Book Option</h2>
+        <h2>Book Search</h2>
         <form method="GET" action="/dashboard" class="search-box">
             <input type="hidden" name="username" value="{{ username }}">
             <input type="hidden" name="role" value="{{ role }}">
@@ -80,6 +83,16 @@
         <button type="button" class="btn-sidebar-login" onclick="goToScreen('login')">Sign In to Account</button>
     </aside>
     <main class="main-content">
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <div style="background-color: #ffcccc; border: 1px solid #f5b3b3; color: #801313; padding: 12px; border-radius: 4px; font-size: 0.9rem; margin-bottom: 10px;">
+                  <strong>Access Warning:</strong> {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
         <div class="results-box" style="min-height: auto; padding: 15px 25px;">
             <h2>Guest Discovery Console</h2>
             <p>Browse active reference materials and verify space availability.</p>
@@ -87,8 +100,8 @@
         {% if book %}
             <div class="results-box">
                 <h2>Results for: {{ book.title }}</h2>
-                <p><strong>Location:</strong> {{ book.room }}</p>
-                <p><strong>Total Capacity:</strong> {{ book.capacity }} items</p>
+                <p><strong>Author Name:</strong> {{ book.author }}</p>
+                <p><strong>Media Style Type:</strong> {{ book.media_type }}</p>
                 <p><strong>Is Available:</strong>
                     {% if book.available %}
                         <span style="color: green; font-weight: bold;">Available</span>
@@ -106,6 +119,76 @@
                 <p style="color: #666; font-style: italic;">Search for a book to view details here.</p>
             </div>
         {% endif %}
+
+        <!-- TABLE 1: INSTITUTIONAL MEDIA CATALOG -->
+        <div class="results-box">
+            <h2>Institutional Media Catalog</h2>
+            <p style="margin-bottom: 15px; color: #555; font-size: 0.9rem;">Browse active media reference catalog indexes currently stored.</p>
+            <table>
+                <thead>
+                    <tr style="background-color: #001b57; color: white;">
+                        <th style="padding: 10px; border: 1px solid #ddd;">Book Title</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Media Type</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Author Name</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Publishing Date</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for title, info in books.items() %}
+                    <tr style="background-color: white;">
+                        <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold; color: #162c99;">{{ title.title() }}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">{{ info.media_type }}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">{{ info.author }}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">{{ info.published }}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">
+                            {% if info.available %}
+                                <span class="status-pill" style="color: #15803d; background-color: #dcfce7;">Available</span>
+                            {% else %}
+                                <span class="status-pill" style="color: #b91c1c; background-color: #fee2e2;">Checked Out</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- TABLE 2: COLLABORATIVE STUDY ENVIRONMENTS -->
+        <div class="results-box">
+            <h2>Collaborative Study Environments</h2>
+            <p style="margin-bottom: 15px; color: #555; font-size: 0.9rem;">Review real-time study space delays and allocation clearances.</p>
+            <table>
+                <thead>
+                    <tr style="background-color: #001b57; color: white;">
+                        <th style="padding: 10px; border: 1px solid #ddd;">Room Designation</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Status</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Availability Window</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for name, info in rooms.items() %}
+                    <tr style="background-color: white;">
+                        <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold; color: #001b57;">{{ name }}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">
+                            {% if info.occupied %}
+                                <span class="status-pill" style="color: #b45309; background-color: #fef3c7;">Occupied</span>
+                            {% else %}
+                                <span class="status-pill" style="color: #15803d; background-color: #dcfce7;">Vacant</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 10px; border: 1px solid #ddd; font-family: monospace; font-weight: bold;">
+                            {% if info.occupied %}{{ info.time_until_available }}{% else %}Instant Access{% endif %}
+                        </td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">
+                            <button type="button" onclick="alert('It seems you aren\'t signed in, login to reserve a slot.')" style="padding: 6px 12px; background-color: #555; color: white; border: none; border-radius: 4px; font-weight: bold; font-size: 0.8rem; cursor: pointer;">Book Slot</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </main>
     <div class="modal-overlay" id="gateModal">
         <div class="modal-box">
