@@ -110,8 +110,8 @@
         {% endwith %}
 
         <div class="results-box" style="min-height: auto; padding: 15px 25px;">
-            <h2>Faculty Dashboard Space</h2>
-            <p>Accessing educational media indexes and institutional room prioritization controls.</p>
+            <h2>Faculty Dashboard</h2>
+            <p>Access learning materials and reserve one of our rooms.</p>
         </div>
         {% if book %}
             <div class="results-box">
@@ -133,8 +133,8 @@
 
         <!-- TABLE 1: INSTITUTIONAL MEDIA CATALOG -->
         <div class="results-box">
-            <h2>Institutional Media Catalog</h2>
-            <p style="margin-bottom: 15px; color: #555; font-size: 0.9rem;">Browse active media reference catalog indexes currently stored.</p>
+            <h2>List of Books</h2>
+            <p style="margin-bottom: 15px; color: #555; font-size: 0.9rem;">List of all books in the library.</p>
             <table>
                 <thead>
                     <tr style="background-color: #001b57; color: white;">
@@ -167,8 +167,8 @@
 
         <!-- TABLE 2: COLLABORATIVE STUDY ENVIRONMENTS -->
         <div class="results-box">
-            <h2>Collaborative Study Environments</h2>
-            <p style="margin-bottom: 15px; color: #555; font-size: 0.9rem;">Review real-time study space delays and allocation clearances.</p>
+            <h2>Reserve Rooms</h2>
+            <p style="margin-bottom: 15px; color: #555; font-size: 0.9rem;">Consult this table for room availability.</p>
             <table>
                 <thead>
                     <tr style="background-color: #001b57; color: white;">
@@ -221,11 +221,12 @@
         </div>
 
         <div class="results-box">
-            <h2>Suggest Physical Material Addition</h2>
+            <h2>Literature Suggestions</h2>
+            <p>Suggestion must include Title, Media Type, Author Name, and Publishing Date.<p>
             <form action="/suggest_book" method="POST" style="display: flex; gap: 10px; margin-top: 15px;">
                 <input type="hidden" name="username" value="{{ username }}">
                 <input type="hidden" name="role" value="{{ role }}">
-                <input type="text" name="book_title" placeholder="e.g., Practical Cryptography" required style="padding: 8px; flex: 1; border-radius: 4px; border: 1px solid #ccc;">
+                <input type="text" name="book_title" placeholder="Propose additional materials for our library here." required style="padding: 8px; flex: 1; border-radius: 4px; border: 1px solid #ccc;">
                 <button type="submit" style="padding: 8px 15px; font-weight: bold; background-color: #162c99; color: white; border: none; border-radius: 4px; cursor: pointer;">Submit Proposal</button>
             </form>
         </div>

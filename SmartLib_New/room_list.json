@@ -1,18 +1,18 @@
 {
     "Study Room A": {
-        "occupied": false,
-        "time_until_available": "Instant Access"
+        "occupied": true,
+        "time_until_available": "45 mins"
     },
     "Multimedia Room": {
-        "occupied": false,
-        "time_until_available": "Instant Access"
+        "occupied": true,
+        "time_until_available": "25"
     },
     "Meeting Room A": {
-        "occupied": false,
-        "time_until_available": "Instant Access"
+        "occupied": true,
+        "time_until_available": "45"
     },
     "Meeting Room B": {
-        "occupied": false,
-        "time_until_available": "Instant Access"
+        "occupied": true,
+        "time_until_available": "25"
     }
 }

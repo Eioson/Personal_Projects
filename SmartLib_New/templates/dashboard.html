@@ -364,13 +364,13 @@
 
         <div class="results-box" style="min-height: auto; padding: 15px 25px;">
             {% if role == 'librarian' %}
-                <h2>System Administrator Dashboard Workspace</h2>
-                <p>Hello administrative operator, your global monitoring controls are loaded below.</p>
+                <h2>Administrator Dashboard</h2>
+                <p>You have the keys to everything on the library. Use them well.</p>
             {% elif role == 'teacher' %}
-                <h2>Faculty Resource Dashboard Workspace</h2>
+                <h2>Faculty Dashboard</h2>
                 <p>Hello professor, your verified educational slot utilities are loaded below.</p>
             {% else %}
-                <h2>Student Discovery Console</h2>
+                <h2>Student Hub</h2>
                 <p>Browse active reference materials and verify room availability below.</p>
             {% endif %}
         </div>
@@ -450,11 +450,11 @@
             </div>
         {% elif role == 'teacher' %}
             <div class="results-box">
-                <h2>Suggest Physical Material Addition</h2>
+                <h2>Literature Suggestions</h2>
                 <form action="/suggest_book" method="POST" style="display: flex; gap: 10px; margin-top: 15px;">
                     <input type="hidden" name="username" value="{{ username }}">
                     <input type="hidden" name="role" value="{{ role }}">
-                    <input type="text" name="book_title" placeholder="e.g., Practical Cryptography" required style="padding: 8px; flex: 1; border-radius: 4px; border: 1px solid #ccc;">
+                    <input type="text" name="book_title" placeholder="Propose additional materials for our library here." required style="padding: 8px; flex: 1; border-radius: 4px; border: 1px solid #ccc;">
                     <button type="submit" style="padding: 8px 15px; font-weight: bold; background-color: #162c99; color: white; border: none; border-radius: 4px; cursor: pointer;">Submit Proposal</button>
                 </form>
             </div>
