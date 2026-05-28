@@ -1,0 +1,42 @@
+{
+    "The Architecture of Tomorrow: How Digital Networks Shape Human Behavior": {
+        "media_type": "Physical",
+        "author": "Dr. Evelyn Vance",
+        "published": "2022-08-14",
+        "available": true,
+        "room": "General Area",
+        "capacity": 10
+    },
+    "The Self-Hosted Frontier: A Practical Guide to NAS, Private Clouds, and Local Infrastructure": {
+        "media_type": "Ebook",
+        "author": "Julian Vance",
+        "published": "2024-09-28",
+        "available": false,
+        "room": "General Area",
+        "capacity": 10
+    },
+    "Signals in the Static: Foundations of Digital Communication and Wireless Networks": {
+        "media_type": "Physical",
+        "author": "Dr. Raymond Chen",
+        "published": "2021-02-18",
+        "available": true,
+        "room": "General Area",
+        "capacity": 10
+    },
+    "Bugs, Bytes, and Blue Screens: History's Most Costly Software Failures": {
+        "media_type": "Ebook",
+        "author": "Marcus Kim",
+        "published": "2022-11-03",
+        "available": true,
+        "room": "General Area",
+        "capacity": 10
+    },
+    "Ego Is the Enemy": {
+        "media_type": "Physical",
+        "author": "Ryan Holiday",
+        "published": "2019-10-24",
+        "available": false,
+        "room": "General Area",
+        "capacity": 10
+    }
+}
