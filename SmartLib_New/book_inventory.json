@@ -1,0 +1,14 @@
+{
+    "lajan littera": {
+        "author": "Dr. Juan Dela Cruz",
+        "media_type": "Hardcover Reference",
+        "published": "2021-05-12",
+        "available": true
+    },
+    "data structures": {
+        "author": "Prof. Ada Lovelace",
+        "media_type": "E-Book Edition",
+        "published": "2019-10-14",
+        "available": false
+    }
+}

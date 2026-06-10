@@ -1,0 +1,14 @@
+{
+    "patesel@student.nu-cebu.edu.ph": {
+        "password": "password1234",
+        "role": "student"
+    },
+    "teacher@nu.edu.ph": {
+        "password": "password123",
+        "role": "teacher"
+    },
+    "admin@nu.edu.ph": {
+        "password": "password123",
+        "role": "librarian"
+    }
+}
